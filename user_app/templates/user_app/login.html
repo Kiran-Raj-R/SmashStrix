@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmashStrix - Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 font-sans">
+  <!-- Header -->
+  <header class="bg-blue-800 text-white shadow-md">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="text-2xl font-bold flex items-center">
+        <span>Smashstrix</span>
+      </div>
+      <div class="relative">
+        <input type="text" placeholder="Search..." class="border rounded p-2 text-black w-64" disabled>
+      </div>
+      <div class="flex space-x-4 items-center">
+        <a href="{% url 'home' %}" class="hover:text-blue-200">Home</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="container mx-auto p-4 flex justify-center">
+    <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-md mt-10">
+      {% if error %}
+        <p class="text-red-500 text-center mb-4">{{ error }}</p>
+      {% endif %}
+      <form method="post" action="{% url 'login' %}">
+        {% csrf_token %}
+        <h2 class="text-2xl font-semibold mb-4 text-center">Login</h2>
+        <div class="mb-4">
+          <label class="block text-sm font-medium">Email</label>
+          <input type="email" name="username" class="w-full border rounded p-2 mt-1" required>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium">Password</label>
+          <input type="password" name="password" class="w-full border rounded p-2 mt-1" required>
+        </div>
+        <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Login</button>
+      </form>
+      <div class="mt-4 text-center">
+        <a href="{% url 'forgot_password' %}" class="text-blue-600 hover:underline">Forgot Password?</a>
+      </div>
+      <div class="mt-4 text-center">
+        <a href="{% url 'social:begin' 'google-oauth2' %}" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Login with Google</a>
+      </div>
+      <p class="mt-4 text-center">Don't have an account? <a href="{% url 'signup' %}" class="text-blue-600 hover:underline">Sign Up</a></p>
+      {% if show_forgot %}
+        <form method="post" action="{% url 'forgot_password' %}" class="mt-4">
+          {% csrf_token %}
+          <h2 class="text-2xl font-semibold mb-4 text-center">Forgot Password</h2>
+          <div class="mb-4">
+            <label class="block text-sm font-medium">Email</label>
+            <input type="email" name="email" class="w-full border rounded p-2 mt-1" required>
+          </div>
+          <button type="submit" class="w-full bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700">Send OTP</button>
+        </form>
+      {% endif %}
+      {% if show_reset %}
+        <form method="post" action="{% url 'reset_password' %}" class="mt-4">
+          {% csrf_token %}
+          <h2 class="text-2xl font-semibold mb-4 text-center">Reset Password</h2>
+          <div class="mb-4">
+            <label class="block text-sm font-medium">OTP</label>
+            <input type="text" name="otp" class="w-full border rounded p-2 mt-1" required>
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium">New Password</label>
+            <input type="password" name="new_password" class="w-full border rounded p-2 mt-1" required>
+          </div>
+          <button type="submit" class="w-full bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700">Reset</button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+
+ <!-- Footer -->
+  <footer class="bg-gray-800 text-white py-6">
+    <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-5 gap-8">
+      <div>
+        <h3 class="text-lg font-semibold mb-2">Quick Links</h3>
+        <ul class="mt-2 space-y-1">
+          <li><a href="#" class="hover:text-blue-300">Contact Us</a></li>
+          <li><a href="#" class="hover:text-blue-300">FAQ's & Return Policy</a></li>
+          <li><a href="#" class="hover:text-blue-300">Track your order</a></li>
+          <li><a href="#" class="hover:text-blue-300">Privacy Policy</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold mb-2">Explore</h3>
+        <ul class="mt-2 space-y-1">
+          <li><a href="/about-us/" class="hover:text-blue-300">About Us</a></li>
+          <li><a href="#" class="hover:text-blue-300">Happy customers</a></li>
+          <li><a href="#" class="hover:text-blue-300">Knowledge Center</a></li>
+          <li><a href="#" class="hover:text-blue-300">In the News</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold mb-2">Services</h3>
+        <ul class="mt-2 space-y-1">
+          <li><a href="#" class="hover:text-blue-300">Sports Consultation</a></li>
+          <li><a href="#" class="hover:text-blue-300">Recommendations</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold mb-2">Shop by Brands</h3>
+        <p class="mt-2">YONEX | LI-NING | ASHAWAY | VICTOR | CARLSON | APACS</p>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold mb-2">Download App</h3>
+        <div class="flex space-x-2 mt-2">
+          <a href="#" class="hover:text-blue-300">Google Play</a>
+          <a href="#" class="hover:text-blue-300">App Store</a>
+        </div>
+      </div>
+    </div>
+    <div class="container mx-auto px-4 mt-4 text-center border-t border-gray-700 pt-4">
+      <div class="flex justify-center space-x-4 mb-2">
+        <a href="#" class="hover:text-blue-300"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" class="hover:text-blue-300"><i class="fab fa-twitter"></i></a>
+        <a href="#" class="hover:text-blue-300"><i class="fab fa-instagram"></i></a>
+        <a href="#" class="hover:text-blue-300"><i class="fab fa-linkedin-in"></i></a>
+      </div>
+      <p>&copy; 2025 SmashStrix. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+</body>
+</html>

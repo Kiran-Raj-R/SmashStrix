@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmashStrix - Badminton Gear</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .product-card img {
+      transition: transform 0.2s;
+    }
+    .product-card img:hover {
+      transform: scale(1.05);
+    }
+    .banner {
+      background-color: #e0f2fe;
+    }
+    .hero-bg {
+      background-image: url('https://via.placeholder.com/1200x400');
+      background-size: cover;
+      background-position: center;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 font-sans">
+  <!-- Top Banner -->
+  <div class="banner text-center py-2 bg-blue-100 text-blue-800">
+    <p>Get 10% off for your first purchase use <strong>SMX10</strong></p>
+  </div>
+
+  <!-- Header -->
+  <header class="bg-blue-800 text-white shadow-md">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="text-2xl font-bold flex items-center">
+        <span>Smashstrix</span>
+      </div>
+      <div class="relative">
+        <input type="text" id="search" placeholder="Search..." class="border rounded p-2 text-black w-64">
+        <button id="clear-search" class="absolute right-2 top-2 bg-red-500 text-white px-2 py-1 rounded" style="display: none;">X</button>
+      </div>
+      <div class="flex space-x-4 items-center">
+        <a href="#" class="hover:text-blue-200">Cart</a>
+        {% if user.is_authenticated %}
+          <a href="{% url 'logout' %}" class="hover:text-blue-200">Logout</a>
+        {% else %}
+          <a href="{% url 'login' %}" class="hover:text-blue-200">Login</a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-bg text-white py-20 text-center">
+    <h1 class="text-4xl font-bold"> Badminton Gear</h1>
+    <p class="text-xl mt-2">Elevate Your Game</p>
+    <button class="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Shop Now</button>
+  </section>
+
+  <!-- Filter and Sort Section -->
+  <div class="container mx-auto px-4 py-4">
+    <div class="flex space-x-4">
+      <select id="sort" class="border rounded p-2">
+        <option value="">Sort By</option>
+        <option value="price_low">Price: Low to High</option>
+        <option value="price_high">Price: High to Low</option>
+        <option value="name_asc">A-Z</option>
+        <option value="name_desc">Z-A</option>
+      </select>
+      <select id="category" class="border rounded p-2">
+        <option value="">All Categories</option>
+      </select>
+      <input type="number" id="min_price" placeholder="Min Price" class="border rounded p-2 w-20">
+      <input type="number" id="max_price" placeholder="Max Price" class="border rounded p-2 w-20">
+    </div>
+  </div>
+
+  <!-- Brands Section -->
+  <section class="container mx-auto py-10 text-center">
+    <h2 class="text-2xl font-semibold">BRANDS YOU LOVE</h2>
+    <p class="mt-2 text-gray-600">NOW IN SmashStrix !</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-6">
+      <div class="p-4 border rounded">YONEX</div>
+      <div class="p-4 border rounded">LI-NING</div>
+      <div class="p-4 border rounded">ASHAWAY</div>
+      <div class="p-4 border rounded">APACS</div>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-4 text-green-600 font-semibold">
+      <p>FLAT 15% OFF</p>
+      <p>FLAT 15% OFF</p>
+      <p>FLAT 15% OFF</p>
+      <p>FLAT 15% OFF</p>
+    </div>
+  </section>
+
+  <!-- Product Showcase -->
+  <section class="container mx-auto py-10 text-center">
+    <h2 class="text-2xl font-semibold">WITH SO MANY CHOICES</h2>
+    <p class="mt-2 text-gray-600">Small prices for big joy!</p>
+    <!-- <div id="product-showcase" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-6"></div> -->
+     <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div class="product-card text-center cursor-pointer">
+                    <div class="w-full h-64 bg-gradient-to-br from-blue-100 to-blue-200 mb-4 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-table-tennis text-6xl text-blue-600"></i>
+                    </div>
+                    <p class="font-medium text-lg">₹699</p>
+                    <p class="text-sm text-gray-600">Apacs Finapi</p>
+                </div>
+                <div class="product-card text-center cursor-pointer">
+                    <div class="w-full h-64 bg-gradient-to-br from-red-100 to-red-200 mb-4 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-table-tennis text-6xl text-red-600"></i>
+                    </div>
+                    <p class="font-medium text-lg">₹899</p>
+                    <p class="text-sm text-gray-600">Nivia Flash</p>
+                </div>
+                <div class="product-card text-center cursor-pointer">
+                    <div class="w-full h-64 bg-gradient-to-br from-green-100 to-green-200 mb-4 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-table-tennis text-6xl text-green-600"></i>
+                    </div>
+                    <p class="font-medium text-lg">₹759</p>
+                    <p class="text-sm text-gray-600">Li-Ning Ignite</p>
+                </div>
+                <div class="product-card text-center cursor-pointer">
+                    <div class="w-full h-64 bg-gradient-to-br from-purple-100 to-purple-200 mb-4 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-table-tennis text-6xl text-purple-600"></i>
+                    </div>
+                    <p class="font-medium text-lg">₹959</p>
+                    <p class="text-sm text-gray-600">Vector X Ranger</p>
+                </div>
+            </div>
+  </section>
+
+  <!-- Best Under Section -->
+  <section class="container mx-auto py-10 text-center">
+    <h2 class="text-2xl font-semibold">BEST UNDER ₹999</h2>
+    <p class="mt-2 text-gray-600">Small prices for big joy!</p>
+    <!-- <div id="best-under" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-6"></div> -->
+     <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+                <div class="product-card text-center cursor-pointer">
+                    <div class="w-full h-64 bg-gradient-to-br from-yellow-100 to-yellow-200 mb-4 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-running text-6xl text-yellow-600"></i>
+                    </div>
+                    <div class="text-left">
+                        <p class="text-orange-500 font-medium text-lg">Nivia</p>
+                        <p class="text-gray-800 mb-2">Tightgrip Badminton shoe</p>
+                        <p class="font-medium text-lg">₹699</p>
+                    </div>
+                </div>
+                <div class="product-card text-center cursor-pointer">
+                    <div class="w-full h-64 bg-gradient-to-br from-indigo-100 to-indigo-200 mb-4 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-running text-6xl text-indigo-600"></i>
+                    </div>
+                    <div class="text-left">
+                        <p class="text-orange-500 font-medium text-lg">Yonex</p>
+                        <p class="text-gray-800 mb-2">Indoor grip shoe</p>
+                        <p class="font-medium text-lg">₹899</p>
+                    </div>
+                </div>
+                <div class="product-card text-center cursor-pointer">
+                    <div class="w-full h-64 bg-gradient-to-br from-pink-100 to-pink-200 mb-4 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-running text-6xl text-pink-600"></i>
+                    </div>
+                    <div class="text-left">
+                        <p class="text-orange-500 font-medium text-lg">Vector</p>
+                        <p class="text-gray-800 mb-2">Indoor and outdoor shoe</p>
+                        <p class="font-medium text-lg">₹759</p>
+                    </div>
+                </div>
+                <div class="product-card text-center cursor-pointer">
+                    <div class="w-full h-64 bg-gradient-to-br from-teal-100 to-teal-200 mb-4 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-running text-6xl text-teal-600"></i>
+                    </div>
+                    <div class="text-left">
+                        <p class="text-orange-500 font-medium text-lg">Apacs</p>
+                        <p class="text-gray-800 mb-2">Finappi 100</p>
+                        <p class="font-medium text-lg">₹959</p>
+                    </div>
+                </div>
+            </div>
+  </section>
+
+  <!-- For All Ages Section -->
+  <section class="container mx-auto py-10 text-center">
+    <h2 class="text-2xl font-semibold">FOR ALL AGES !!</h2>
+    <p class="mt-2 text-gray-600">Small prices for big joy!</p>
+    <!-- <div id="for-all-ages" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-6"></div> -->
+     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="product-card text-center cursor-pointer">
+                    <div class="w-full h-64 bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-circle text-6xl text-orange-600"></i>
+                    </div>
+                </div>
+                <div class="product-card text-center cursor-pointer">
+                    <div class="w-full h-64 bg-gradient-to-br from-cyan-100 to-cyan-200 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-table-tennis text-6xl text-cyan-600"></i>
+                    </div>
+                </div>
+                <div class="product-card text-center cursor-pointer">
+                    <div class="w-full h-64 bg-gradient-to-br from-rose-100 to-rose-200 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-table-tennis text-6xl text-rose-600"></i>
+                    </div>
+                </div>
+            </div>
+  </section>
+
+  <!-- Feel Good Deals -->
+  <section class="container mx-auto py-10 text-center">
+    <h2 class="text-2xl font-semibold">FEEL-GOOD DEALS</h2>
+    <p class="mt-2 text-gray-600">Enjoy extra treats for you and your game!</p>
+    <!-- <div id="feel-good-deals" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-6"></div> -->
+     <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div class="product-card text-center cursor-pointer">
+                    <div class="w-full h-48 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-gift text-4xl text-emerald-600"></i>
+                    </div>
+                </div>
+                <div class="product-card text-center cursor-pointer">
+                    <div class="w-full h-48 bg-gradient-to-br from-violet-100 to-violet-200 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-gift text-4xl text-violet-600"></i>
+                    </div>
+                </div>
+                <div class="product-card text-center cursor-pointer">
+                    <div class="w-full h-48 bg-gradient-to-br from-amber-100 to-amber-200 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-gift text-4xl text-amber-600"></i>
+                    </div>
+                </div>
+                <div class="product-card text-center cursor-pointer">
+                    <div class="w-full h-48 bg-gradient-to-br from-lime-100 to-lime-200 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-gift text-4xl text-lime-600"></i>
+                    </div>
+                </div>
+            </div>
+    <!-- <div id="feel-good-deals-pagination" class="mt-4 flex justify-center"></div> -->
+  </section>
+
+  <!-- Super Deals -->
+  <section class="container mx-auto py-10 text-center">
+    <h2 class="text-2xl font-semibold">SUPER DEALS</h2>
+    <p class="mt-2 text-gray-600">Small prices for big joy!</p>
+    <!-- <div id="super-deals" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-6"></div> -->
+     <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div class="product-card text-center cursor-pointer">
+                    <div class="w-full h-64 bg-gradient-to-br from-slate-100 to-slate-200 mb-4 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-table-tennis text-6xl text-slate-600"></i>
+                    </div>
+                    <div class="text-left">
+                        <p class="text-orange-500 font-medium text-lg">Apacs</p>
+                        <p class="text-gray-800 mb-2">finappi 2000</p>
+                        <p class="font-medium text-lg">₹2999</p>
+                    </div>
+                </div>
+                <div class="product-card text-center cursor-pointer">
+                    <div class="w-full h-64 bg-gradient-to-br from-red-100 to-red-200 mb-4 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-table-tennis text-6xl text-red-600"></i>
+                    </div>
+                    <div class="text-left">
+                        <p class="text-orange-500 font-medium text-lg">Yonex</p>
+                        <p class="text-gray-800 mb-2">Voltric 38i</p>
+                        <p class="font-medium text-lg">₹1299</p>
+                    </div>
+                </div>
+                <div class="product-card text-center cursor-pointer">
+                    <div class="w-full h-64 bg-gradient-to-br from-blue-100 to-blue-200 mb-4 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-table-tennis text-6xl text-blue-600"></i>
+                    </div>
+                    <div class="text-left">
+                        <p class="text-orange-500 font-medium text-lg">Victor</p>
+                        <p class="text-gray-800 mb-2">Victor muscle</p>
+                        <p class="font-medium text-lg">₹1799</p>
+                    </div>
+                </div>
+                <div class="product-card text-center cursor-pointer">
+                    <div class="w-full h-64 bg-gradient-to-br from-green-100 to-green-200 mb-4 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-table-tennis text-6xl text-green-600"></i>
+                    </div>
+                    <div class="text-left">
+                        <p class="text-orange-500 font-medium text-lg">Yonex</p>
+                        <p class="text-gray-800 mb-2">Nanoray 400</p>
+                        <p class="font-medium text-lg">₹2990</p>
+                    </div>
+                </div>
+            </div>
+    <div id="super-deals-pagination" class="mt-4 flex justify-center"></div>
+  </section>
+
+  <!-- Newsletter Section -->
+  <section class="bg-gray-100 py-10 text-center">
+    <h2 class="text-2xl font-semibold">Subscribe now and be the first to know about exclusive offers, latest fashion trends & style tips!</h2>
+    <form class="mt-4">
+      <input type="email" placeholder="Enter your email" class="p-2 border rounded-l">
+      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-r">Subscribe</button>
+    </form>
+  </section>
+
+  <!-- Features Section -->
+  <section class="container mx-auto py-10 text-center">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+      <div class="p-4 border rounded">
+        <div class="text-3xl mb-2">🏸</div>
+        <h3 class="font-semibold">High Quality</h3>
+        <p class="text-gray-600">crafted from top materials</p>
+      </div>
+      <div class="p-4 border rounded">
+        <div class="text-3xl mb-2">✅</div>
+        <h3 class="font-semibold">100% Genuine</h3>
+        <p class="text-gray-600">No Fakes.</p>
+      </div>
+      <div class="p-4 border rounded">
+        <div class="text-3xl mb-2">🚚</div>
+        <h3 class="font-semibold">Free Shipping</h3>
+        <p class="text-gray-600">Order over ₹2000</p>
+      </div>
+      <div class="p-4 border rounded">
+        <div class="text-3xl mb-2">⏰</div>
+        <h3 class="font-semibold">24 / 7 Support</h3>
+        <p class="text-gray-600">Dedicated support</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white py-6">
+    <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-5 gap-8">
+      <div>
+        <h3 class="text-lg font-semibold mb-2">Quick Links</h3>
+        <ul class="mt-2 space-y-1">
+          <li><a href="#" class="hover:text-blue-200">Contact Us</a></li>
+          <li><a href="#" class="hover:text-blue-200">FAQ's & Return Policy</a></li>
+          <li><a href="#" class="hover:text-blue-200">Track your order</a></li>
+          <li><a href="#" class="hover:text-blue-200">Privacy Policy</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold mb-2">Explore</h3>
+        <ul class="mt-2 space-y-1">
+          <li><a href="/about-us/" class="hover:text-blue-200">About Us</a></li>
+          <li><a href="#" class="hover:text-blue-200">Happy customers</a></li>
+          <li><a href="#" class="hover:text-blue-200">Knowledge Center</a></li>
+          <li><a href="#" class="hover:text-blue-200">In the News</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold mb-2">Services</h3>
+        <ul class="mt-2 space-y-1">
+          <li><a href="#" class="hover:text-blue-200">Sports Consultation</a></li>
+          <li><a href="#" class="hover:text-blue-200">Recommendations</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold mb-2">Shop by Brands</h3>
+        <p class="mt-2">YONEX | LI-NING | ASHAWAY | VICTOR | CARLSON | APACS</p>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold mb-2">Download App</h3>
+        <div class="flex space-x-2 mt-2">
+          <a href="#" class="hover:text-blue-200">Google Play</a>
+          <a href="#" class="hover:text-blue-200">App Store</a>
+        </div>
+      </div>
+    </div>
+    <div class="container mx-auto px-4 mt-4 text-center border-t border-gray-700 pt-4">
+      <div class="flex justify-center space-x-4 mb-2">
+        <a href="#" class="hover:text-blue-200"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" class="hover:text-blue-200"><i class="fab fa-twitter"></i></a>
+        <a href="#" class="hover:text-blue-200"><i class="fab fa-instagram"></i></a>
+        <a href="#" class="hover:text-blue-200"><i class="fab fa-linkedin-in"></i></a>
+      </div>
+      <p>&copy; 2025 SmashStrix. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+  <script>
+    async function fetchProducts(sectionId, paginationId, filter = {}) {
+      const search = document.getElementById('search').value;
+      const sort = document.getElementById('sort').value;
+      const category = document.getElementById('category').value;
+      const min_price = document.getElementById('min_price').value;
+      const max_price = document.getElementById('max_price').value;
+      const params = new URLSearchParams({
+        ...filter,
+        search: search || '',
+        sort: sort || '',
+        category: category || '',
+        min_price: min_price || '',
+        max_price: max_price || '',
+        page: 1,
+        page_size: 4,
+      }).toString();
+      const response = await fetch(`http://127.0.0.1:8000/api/products/?${params}`);
+      const data = await response.json();
+      const section = document.getElementById(sectionId);
+      section.innerHTML = data.results.map(product => `
+        <div class="product-card bg-white p-4 rounded shadow-md text-center">
+          <img src="${product.image || 'https://via.placeholder.com/150'}" alt="${product.name}" class="w-full h-48 object-cover">
+          <h3 class="text-lg font-semibold mt-2">${product.name}</h3>
+          <p class="text-gray-600">₹${product.price}</p>
+        </div>
+      `).join('');
+      const pagination = document.getElementById(paginationId);
+      pagination.innerHTML = `
+        <button ${data.current_page <= 1 ? 'disabled' : ''} onclick="fetchProducts('${sectionId}', '${paginationId}', { ...${JSON.stringify(filter)}, page: ${data.current_page - 1} })">Previous</button>
+        <span> Page ${data.current_page} of ${data.total_pages} </span>
+        <button ${data.current_page >= data.total_pages ? 'disabled' : ''} onclick="fetchProducts('${sectionId}', '${paginationId}', { ...${JSON.stringify(filter)}, page: ${data.current_page + 1} })">Next</button>
+      `;
+      if (search) document.getElementById('clear-search').style.display = 'block';
+      else document.getElementById('clear-search').style.display = 'none';
+    }
+
+    document.getElementById('search').addEventListener('input', () => {
+      fetchProducts('product-showcase', 'product-showcase-pagination');
+      fetchProducts('best-under', 'best-under-pagination', { max_price: 999 });
+      fetchProducts('for-all-ages', 'for-all-ages-pagination');
+      fetchProducts('feel-good-deals', 'feel-good-deals-pagination');
+      fetchProducts('super-deals', 'super-deals-pagination');
+    });
+    document.getElementById('sort').addEventListener('change', () => {
+      fetchProducts('product-showcase', 'product-showcase-pagination');
+      fetchProducts('best-under', 'best-under-pagination', { max_price: 999 });
+      fetchProducts('for-all-ages', 'for-all-ages-pagination');
+      fetchProducts('feel-good-deals', 'feel-good-deals-pagination');
+      fetchProducts('super-deals', 'super-deals-pagination');
+    });
+    document.getElementById('category').addEventListener('change', () => {
+      fetchProducts('product-showcase', 'product-showcase-pagination');
+      fetchProducts('best-under', 'best-under-pagination', { max_price: 999 });
+      fetchProducts('for-all-ages', 'for-all-ages-pagination');
+      fetchProducts('feel-good-deals', 'feel-good-deals-pagination');
+      fetchProducts('super-deals', 'super-deals-pagination');
+    });
+    document.getElementById('min_price').addEventListener('change', () => {
+      fetchProducts('product-showcase', 'product-showcase-pagination');
+      fetchProducts('best-under', 'best-under-pagination', { max_price: 999 });
+      fetchProducts('for-all-ages', 'for-all-ages-pagination');
+      fetchProducts('feel-good-deals', 'feel-good-deals-pagination');
+      fetchProducts('super-deals', 'super-deals-pagination');
+    });
+    document.getElementById('max_price').addEventListener('change', () => {
+      fetchProducts('product-showcase', 'product-showcase-pagination');
+      fetchProducts('best-under', 'best-under-pagination', { max_price: 999 });
+      fetchProducts('for-all-ages', 'for-all-ages-pagination');
+      fetchProducts('feel-good-deals', 'feel-good-deals-pagination');
+      fetchProducts('super-deals', 'super-deals-pagination');
+    });
+    document.getElementById('clear-search').addEventListener('click', () => {
+      document.getElementById('search').value = '';
+      fetchProducts('product-showcase', 'product-showcase-pagination');
+      fetchProducts('best-under', 'best-under-pagination', { max_price: 999 });
+      fetchProducts('for-all-ages', 'for-all-ages-pagination');
+      fetchProducts('feel-good-deals', 'feel-good-deals-pagination');
+      fetchProducts('super-deals', 'super-deals-pagination');
+    });
+
+    async function fetchCategories() {
+      const response = await fetch('http://127.0.0.1:8000/api/categories/');
+      const data = await response.json();
+      const categorySelect = document.getElementById('category');
+      data.forEach(category => {
+        const option = document.createElement('option');
+        option.value = category.id;
+        option.textContent = category.name;
+        categorySelect.appendChild(option);
+      });
+    }
+
+    window.onload = () => {
+      fetchCategories();
+      fetchProducts('product-showcase', 'product-showcase-pagination');
+      fetchProducts('best-under', 'best-under-pagination', { max_price: 999 });
+      fetchProducts('for-all-ages', 'for-all-ages-pagination');
+      fetchProducts('feel-good-deals', 'feel-good-deals-pagination');
+      fetchProducts('super-deals', 'super-deals-pagination');
+    };
+  </script>
+</body>
+</html>
