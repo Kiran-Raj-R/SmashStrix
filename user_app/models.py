@@ -24,6 +24,13 @@ class Product(models.Model):
     def __str__(self):
         return self.name
     
+class ProductSizeStock(models.Model):
+    SIZE_CHOICES = [
+        ('6', '6'),
+        ('7', '7'),
+        ('8', '8'),
+    ]
+    
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phone_number = models.CharField(max_length=15, null=True, blank=True)
@@ -40,4 +47,12 @@ class OTP(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"OTP for {self.user.username}"   
+        return f"OTP for {self.user.username}"  
+
+class ProductSizeStock(models.Model):
+    SIZE_CHOICES = [
+        ('6', '6'),
+        ('7', '7'),
+        ('8', '8'),
+    ]
+    

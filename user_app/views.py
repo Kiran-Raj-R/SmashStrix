@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
-from .models import Product, Category, Profile, OTP, User
+from .models import Product, Category, Profile, OTP, User, ProductSizeStock
 from .serializers import ProductSerializer, CategorySerializer
 from django.db.models import Q
 from django.shortcuts import render, redirect
@@ -99,7 +99,7 @@ def signup_form(request):
             send_mail(
                 'Your OTP Code',
                 f'Your OTP is {code}. It expires in 5 minutes.',
-                settings.DEFAULT_FROM_EMAIL,  # Use settings module to access it
+                settings.DEFAULT_FROM_EMAIL,
                 [email],
                 fail_silently=False,
             )
