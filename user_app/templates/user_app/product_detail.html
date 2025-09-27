@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.name }} - Smashstrix</title>
+    <style>
+        .product-detail {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+        }
+        .product-images {
+            flex: 1;
+        }
+        .product-images img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+        }
+        .product-info {
+            flex: 2;
+        }
+        .product-info h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .product-info p {
+            margin: 5px 0;
+        }
+        .price {
+            font-size: 20px;
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .rating {
+            color: #f39c12;
+        }
+        .stock {
+            color: #27ae60;
+        }
+        .out-of-stock {
+            color: #e74c3c;
+        }
+        .add-to-cart {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        .add-to-cart:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="product-detail">
+        <div class="product-images">
+            {% if product.images.all %}
+                {% for image in product.images.all %}
+                    <img src="{{ image.img_url.url }}" alt="{{ image.alt_text|default:product.name }}" width="300">
+                {% endfor %}
+            {% else %}
+                <p>No images available</p>
+            {% endif %}
+        </div>
+        <div class="product-info">
+            <h1>{{ product.name }}</h1>
+            <p><strong>Category:</strong> {{ product.category.name }}</p>
+            <p class="price">Price: ₹{{ product.price }}</p>
+            <p class="rating">Rating: {{ product.rating }} ★</p>
+            <p class="stock">
+                {% if product.stock_count > 0 %}
+                    In Stock: {{ product.stock_count }} units
+                {% else %}
+                    <span class="out-of-stock">Out of Stock</span>
+                {% endif %}
+            </p>
+            <p>{{ product.description|default:"No description available" }}</p>
+            {% if product.stock_count > 0 %}
+                <form method="post" action="{% url 'add_to_cart' product.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="add-to-cart">Add to Cart</button>
+                </form>
+            {% else %}
+                <p>Currently unavailable for purchase.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

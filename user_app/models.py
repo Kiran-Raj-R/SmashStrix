@@ -1,44 +1,53 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
+from django.utils import timezone
+from django.contrib.auth.models import AbstractUser
+
+class User(AbstractUser):
+    fullname = models.CharField(max_length=255, null=False)
+    mobile_num = models.CharField(max_length=15, null=False)
+    email = models.EmailField(unique=True) #change made on 27-09-2025
+    referral_code = models.CharField(max_length=50, null=True)
+    is_admin = models.BooleanField(default=False)
+    is_blocked = models.BooleanField(default=False)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(null=True)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username', 'fullname', 'mobile_num']
+
+    def __str__(self):
+        return self.fullname
 
 class Category(models.Model):
-         name = models.CharField(max_length=100, unique=True)
-         created_at = models.DateTimeField(auto_now_add=True)
-
-         def __str__(self):
-             return self.name
-
-class Product(models.Model):
-    name = models.CharField(max_length=200)
-    description = models.TextField()
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    image = models.ImageField(upload_to='products/', null=True, blank=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    stock = models.IntegerField(default=0)
-    is_active = models.BooleanField(default=True)
-    discount = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
-    weight = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
-    size = models.CharField(max_length=50, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    name = models.CharField(max_length=255, unique=True, null=False)
+    description = models.TextField(null=True)
+    category_img = models.ImageField(upload_to='categories/', null=True, blank=True)
 
     def __str__(self):
         return self.name
-    
-class ProductSizeStock(models.Model):
-    SIZE_CHOICES = [
-        ('6', '6'),
-        ('7', '7'),
-        ('8', '8'),
-    ]
-    
-class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    phone_number = models.CharField(max_length=15, null=True, blank=True)
-    address = models.TextField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+
+class Product(models.Model):
+    name = models.CharField(max_length=255, null=False)
+    description = models.TextField(null=True)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
+    price = models.DecimalField(max_digits=10, decimal_places=2, null=False)
+    stock_count = models.IntegerField(default=0)
+    rating = models.DecimalField(max_digits=10, decimal_places=2, null=False)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(null=True)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"{self.user.username}'s Profile"
+        return self.name
+
+class ProductImage(models.Model):
+    img_url = models.ImageField(upload_to='products/', null=True, blank=True)
+    alt_text = models.CharField(max_length=255, null=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
+
+    def __str__(self):
+        return f"Image for {self.product.name}"
 
 class OTP(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -47,12 +56,5 @@ class OTP(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"OTP for {self.user.username}"  
-
-class ProductSizeStock(models.Model):
-    SIZE_CHOICES = [
-        ('6', '6'),
-        ('7', '7'),
-        ('8', '8'),
-    ]
+        return f"OTP for {self.user.username} - {self.code}"
     

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Category - SmashStrix</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 font-sans">
+  <div class="container mx-auto p-4">
+    <h1 class="text-3xl font-bold mb-6">Add Category</h1>
+    <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label for="name">Name:</label><input type="text" name="name" required><br>
+    <label for="description">Description:</label><textarea name="description"></textarea><br>
+    <label for="category_img">Category Image:</label><input type="file" name="category_img" accept="image/*"><br>
+    <button type="submit">Add Category</button>
+</form>
+    <a href="{% url 'admin:category_list' %}" class="mt-4 block text-blue-600 hover:underline">Back to Category List</a>
+  </div>
+</body>
+</html>

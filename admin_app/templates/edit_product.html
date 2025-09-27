@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Edit Product - SmashStrix</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 font-sans">
+  <div class="container mx-auto p-4">
+    <h1 class="text-3xl font-bold mb-6">Edit Product</h1>
+    {% if error %}
+      <p class="text-red-500 mb-4">{{ error }}</p>
+    {% endif %}
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="bg-white shadow-lg rounded-lg p-6">
+        <div class="mb-4">
+          <label class="block text-sm font-medium">Name</label>
+          <input type="text" name="name" value="{{ product.name }}" class="w-full border rounded-lg p-2 mt-1" required>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium">Category</label>
+          <select name="category" class="w-full border rounded-lg p-2 mt-1" required>
+            {% for cat in categories %}
+              <option value="{{ cat.id }}" {% if product.category.id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium">Images (Min 3)</label>
+          <input type="file" name="images" multiple class="w-full border rounded-lg p-2 mt-1">
+          {% if product.images %}
+            <div class="mt-2 flex space-x-2">
+              {% for img in product.images %}
+                <img src="{{ img }}" alt="Product Image" class="w-20 h-20 object-cover mt-2 rounded-lg">
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+        <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Save Product</button>
+      </div>
+    </form>
+    <a href="{% url 'admin:product_list' %}" class="mt-4 block text-blue-600 hover:underline">Back to Product List</a>
+  </div>
+  <script>
+    document.querySelector('form').addEventListener('submit', (e) => {
+      const files = document.querySelector('input[name="images"]').files;
+      if (files.length > 0 && files.length < 3) {
+        e.preventDefault();
+        alert('Please upload at least 3 images if replacing existing ones.');
+      }
+    });
+  </script>
+</body>
+</html>

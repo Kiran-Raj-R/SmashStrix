@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Login - SmashStrix</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 font-sans">
+  <div class="container mx-auto p-4 flex justify-center items-center min-h-screen">
+    <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-md">
+      {% if form.errors %}
+        <p class="text-red-500 text-center mb-4">Your username and password didn't match. Please try again.</p>
+      {% endif %}
+      {% if messages %}
+        {% for message in messages %}
+          <p class="text-red-500 text-center mb-4">{{ message }}</p>
+        {% endfor %}
+      {% endif %}
+      <h2 class="text-2xl font-semibold mb-4 text-center">Admin Login</h2>
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-4">
+          <label class="block text-sm font-medium">Username</label>
+          <input type="text" name="username" class="w-full border rounded p-2 mt-1" required>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium">Password</label>
+          <input type="password" name="password" class="w-full border rounded p-2 mt-1" required>
+        </div>
+        <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Log In</button>
+      </form>
+      {% url 'admin_password_reset' as password_reset_url %}
+      {% if password_reset_url %}
+        <p class="mt-2 text-center text-sm"><a href="{{ password_reset_url }}" class="text-blue-600 hover:underline">Forgot password?</a></p>
+      {% endif %}
+    </div>
+  </div>
+
+  <footer class="bg-gray-800 text-white py-6">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <div>
+          <h3 class="font-semibold mb-2">Quick Links</h3>
+          <ul class="space-y-1">
+            <li><a href="#" class="hover:underline">Contact Us</a></li>
+            <li><a href="#" class="hover:underline">FAQ's & Return Policy</a></li>
+            <li><a href="#" class="hover:underline">Track your order</a></li>
+            <li><a href="#" class="hover:underline">Privacy Policy</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-semibold mb-2">Explore</h3>
+          <ul class="space-y-1">
+            <li><a href="#" class="hover:underline">About Us</a></li>
+            <li><a href="#" class="hover:underline">Happy customers</a></li>
+            <li><a href="#" class="hover:underline">Knowledge Center</a></li>
+            <li><a href="#" class="hover:underline">In the News</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-semibold mb-2">Services</h3>
+          <ul class="space-y-1">
+            <li><a href="#" class="hover:underline">Sports Consultation</a></li>
+            <li><a href="#" class="hover:underline">Recommendations</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-semibold mb-2">Shop by Brands</h3>
+          <p>YONEX | LI-NING | ASHAWAY | VICTOR | CARLSON | APACS</p>
+        </div>
+        <div>
+          <h3 class="font-semibold mb-2">Download App</h3>
+          <div class="flex space-x-2">
+            <a href="#" class="hover:underline">Google Play</a>
+            <a href="#" class="hover:underline">App Store</a>
+          </div>
+        </div>
+      </div>
+      <div class="mt-4 text-center">
+        <div class="flex justify-center space-x-4">
+          <a href="#"><i class="fab fa-facebook-f"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+          <a href="#"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+        <p class="mt-2">&copy; 2025 SmashStrix. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+</body>
+</html>
