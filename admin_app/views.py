@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from user_app.models import User
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
@@ -6,23 +6,25 @@ from user_app.models import Category, Product, ProductImage
 from django.http import JsonResponse
 from PIL import Image
 import os
+from django.contrib import messages
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 
-def is_admin(user):
-    return user.is_superuser
-
 def admin_login(request):
     if request.method == 'POST':
-        username = request.POST['username']
+        email = request.POST['username']
         password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
-        if user is not None and user.is_staff:
-            login(request, user)
-            return redirect('admin:index')
+        user = authenticate(request, username=email, password=password)
+        if user is not None:
+            if user.is_staff or user.is_superuser:
+                login(request, user)
+                return redirect('admin:index')
+            else:
+                messages.error(request, 'Insufficient permissions. Only staff or superuser can log in.')
         else:
-            return render(request, 'admin_login.html', {'error': 'Invalid credentials or insufficient permissions'})
+            messages.error(request, 'Invalid email or password.')
     return render(request, 'admin_login.html')
+
 
 @staff_member_required
 def logout_view(request):
