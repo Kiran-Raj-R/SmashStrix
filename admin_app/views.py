@@ -67,7 +67,7 @@ def category_list(request):
     categories = Category.objects.all()
     if search_query:
         categories = categories.filter(name__icontains=search_query)
-    categories = categories.order_by('-created_at')
+    categories = categories.order_by('-id')
     paginator = Paginator(categories, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -95,11 +95,19 @@ def category_edit(request, category_id):
         return redirect('admin:category_list')
     return render(request, 'edit_category.html', {'category': category})
 
+# @staff_member_required
+# def delete_category(request, category_id):
+#     category = get_object_or_404(Category, pk=category_id)
+#     category.delete() 
+#     return JsonResponse({'status': 'success'})
+
 @staff_member_required
-def delete_category(request, category_id):
-    category = get_object_or_404(Category, pk=category_id)
-    category.delete() 
-    return JsonResponse({'status': 'success'})
+def delete_category(request, pk):
+    category = get_object_or_404(Category, id=pk)
+    if request.method == 'POST':
+        category.delete()
+        return JsonResponse({'message': 'Category deleted'})
+    return render(request, 'category_management.html')
 
 @staff_member_required
 def product_list(request):
