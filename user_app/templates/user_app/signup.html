@@ -2,73 +2,68 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SmashStrix - Signup</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => { // Ensure DOM is loaded
-      let timeLeft = 300;
-      const timer = document.getElementById('otp-timer');
-      const resendBtn = document.getElementById('resend-otp');
-      const otpForm = document.getElementById('otp-form');
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    .google-container {
+      text-align: center;
+      margin-top: 15px;
+    }
 
-      function updateTimer() {
-        if (!timer) return; // Prevent errors if timer element is missing
-        const minutes = Math.floor(timeLeft / 60);
-        const seconds = timeLeft % 60;
-        timer.textContent = `Time left: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-        if (timeLeft <= 0) {
-          clearInterval(timerInterval);
-          timer.textContent = 'Time expired';
-          if (resendBtn) resendBtn.style.display = 'block';
-        }
-        timeLeft--;
-      }
+    .google-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      padding: 8px 16px;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      color: #3c4043;
+      text-decoration: none;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
 
-      const timerInterval = setInterval(updateTimer, 1000);
-      updateTimer();
+    .google-btn img {
+      height: 18px;
+      margin-right: 8px;
+    }
 
-      if (resendBtn) {
-        resendBtn.addEventListener('click', () => {
-          fetch('{% url "resend_otp" %}', {
-            method: 'POST',
-            headers: {
-              'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value, // Dynamic CSRF token
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ user_id: "{{ request.session.user_id|default:0|safe }}" }),
-          })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              timeLeft = 300;
-              if (timer) timer.textContent = '';
-              updateTimer();
-              clearInterval(timerInterval);
-              timerInterval = setInterval(updateTimer, 1000);
-              if (resendBtn) resendBtn.style.display = 'none';
-            } else {
-              alert('Failed to resend OTP');
-            }
-          })
-          .catch(error => console.error('Error resending OTP:', error));
-        });
-      }
-    });
-  </script>
+    .password-toggle {
+      cursor: pointer;
+      color: #6b7280;
+      font-size: 1.2rem;
+      position: absolute;
+      right: 8px;
+      top: 55%; /* Adjusted to lower the position slightly below center */
+      transform: translateY(-50%);
+    }
+
+    .password-toggle:hover {
+      color: #4b5563;
+    }
+
+    .password-wrapper {
+      position: relative;
+    }
+  </style>
 </head>
 <body class="bg-gray-50 font-sans">
-  <!-- Header -->
   <header class="bg-blue-800 text-white shadow-md">
     <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-      <div class="text-2xl font-bold flex items-center">
+      <a href="{% url 'home' %}" class="text-2xl font-bold flex items-center hover:text-blue-200">
         <span>Smashstrix</span>
-      </div>
-      <div class="relative">
-        <input type="text" placeholder="Search..." class="border rounded p-2 text-black w-64" disabled>
-      </div>
+      </a>
       <div class="flex space-x-4 items-center">
-        <a href="{% url 'home' %}" class="hover:text-blue-200">Home</a>
+        <a href="#" class="hover:text-blue-200"><i class="fa-solid fa-shopping-cart"></i></a>
+        <a href="#" class="hover:text-blue-200"><i class="fa-solid fa-heart"></i></a>
+        {% if user.is_authenticated %}
+          <a href="{% url 'logout' %}" class="hover:text-blue-200"><i class="fa-solid fa-user"></i></a>
+        {% else %}
+          <a href="{% url 'login' %}" class="hover:text-blue-200"><i class="fa-solid fa-user"></i></a>
+        {% endif %}
       </div>
     </div>
   </header>
@@ -83,87 +78,201 @@
           {% csrf_token %}
           <h2 class="text-2xl font-semibold mb-4 text-center">Sign Up</h2>
           <div class="mb-4">
-            <label class="block text-sm font-medium">Username</label>
-            <input type="text" name="username" class="w-full border rounded p-2 mt-1" required>
+            <label class="block text-sm font-medium">Full Name</label>
+            <input type="text" name="fullname" class="w-full border rounded p-2 mt-1" required>
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium">Email</label>
             <input type="email" name="email" class="w-full border rounded p-2 mt-1" required>
           </div>
-          <div class="mb-4">
+          <div class="mb-4 password-wrapper">
             <label class="block text-sm font-medium">Password</label>
-            <input type="password" name="password" class="w-full border rounded p-2 mt-1" required>
+            <input type="password" name="password" id="password" class="w-full border rounded p-2 mt-1 pr-10" required>
+            <i class="fas fa-eye password-toggle" id="togglePassword" onclick="togglePassword('password')"></i>
+          </div>
+          <div class="mb-4 password-wrapper">
+            <label class="block text-sm font-medium">Confirm Password</label>
+            <input type="password" name="confirm_password" id="confirm_password" class="w-full border rounded p-2 mt-1 pr-10" required>
+            <i class="fas fa-eye password-toggle" id="toggleConfirmPassword" onclick="togglePassword('confirm_password')"></i>
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium">Mobile Number</label>
+            <input type="text" name="mobile_number" class="w-full border rounded p-2 mt-1" required>
           </div>
           <button type="submit" class="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Sign Up</button>
         </form>
-        <p class="mt-4 text-center">Already have an account? <a href="{% url 'login' %}" class="text-blue-600 hover:underline">Login</a></p>
+        <p class="mt-4 text-center">Already have an account? <a href="{% url 'login' %}" class="text-blue-600 hover:underline"><i class="fa-solid fa-user"></i></a></p>
       {% else %}
-        <form method="post" action="{% url 'verify_otp' %}" id="otp-form">
+        <form method="post" action="{% url 'verify_otp' %}">
           {% csrf_token %}
           <h2 class="text-2xl font-semibold mb-4 text-center">Verify OTP</h2>
           <div class="mb-4">
             <label class="block text-sm font-medium">OTP</label>
             <input type="text" name="otp" class="w-full border rounded p-2 mt-1" required>
           </div>
+          <p id="otp-timer" class="text-center text-sm text-gray-600 mb-2">OTP expires in: <span id="timer">5:00</span></p>
           <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Verify</button>
-          <p id="otp-timer" class="text-center mt-2"></p>
-          <button type="button" id="resend-otp" class="w-full mt-2 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600" style="display: none;">Resend OTP</button>
+          <p class="mt-2 text-center">
+            Didn't receive OTP? <a href="#" id="resend-otp" data-user-id="{{ request.session.user_id }}" style="display: none;">Resend OTP</a>
+          </p>
         </form>
       {% endif %}
     </div>
   </div>
 
-  <!-- Footer -->
   <footer class="bg-gray-800 text-white py-6">
-    <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-5 gap-8">
-      <div>
-        <h3 class="text-lg font-semibold mb-2">Quick Links</h3>
-        <ul class="mt-2 space-y-1">
-          <li><a href="#" class="hover:text-blue-300">Contact Us</a></li>
-          <li><a href="#" class="hover:text-blue-300">FAQ's & Return Policy</a></li>
-          <li><a href="#" class="hover:text-blue-300">Track your order</a></li>
-          <li><a href="#" class="hover:text-blue-300">Privacy Policy</a></li>
-        </ul>
-      </div>
-      <div>
-        <h3 class="text-lg font-semibold mb-2">Explore</h3>
-        <ul class="mt-2 space-y-1">
-          <li><a href="/about-us/" class="hover:text-blue-300">About Us</a></li>
-          <li><a href="#" class="hover:text-blue-300">Happy customers</a></li>
-          <li><a href="#" class="hover:text-blue-300">Knowledge Center</a></li>
-          <li><a href="#" class="hover:text-blue-300">In the News</a></li>
-        </ul>
-      </div>
-      <div>
-        <h3 class="text-lg font-semibold mb-2">Services</h3>
-        <ul class="mt-2 space-y-1">
-          <li><a href="#" class="hover:text-blue-300">Sports Consultation</a></li>
-          <li><a href="#" class="hover:text-blue-300">Recommendations</a></li>
-        </ul>
-      </div>
-      <div>
-        <h3 class="text-lg font-semibold mb-2">Shop by Brands</h3>
-        <p class="mt-2">YONEX | LI-NING | ASHAWAY | VICTOR | CARLSON | APACS</p>
-      </div>
-      <div>
-        <h3 class="text-lg font-semibold mb-2">Download App</h3>
-        <div class="flex space-x-2 mt-2">
-          <a href="#" class="hover:text-blue-300">Google Play</a>
-          <a href="#" class="hover:text-blue-300">App Store</a>
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <div>
+          <h3 class="font-semibold mb-2">Quick Links</h3>
+          <ul class="space-y-1">
+            <li><a href="#" class="hover:underline">Contact Us</a></li>
+            <li><a href="#" class="hover:underline">FAQ's & Return Policy</a></li>
+            <li><a href="#" class="hover:underline">Track your order</a></li>
+            <li><a href="#" class="hover:underline">Privacy Policy</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-semibold mb-2">Explore</h3>
+          <ul class="space-y-1">
+            <li><a href="#" class="hover:underline">About Us</a></li>
+            <li><a href="#" class="hover:underline">Happy customers</a></li>
+            <li><a href="#" class="hover:underline">Knowledge Center</a></li>
+            <li><a href="#" class="hover:underline">In the News</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-semibold mb-2">Services</h3>
+          <ul class="space-y-1">
+            <li><a href="#" class="hover:underline">Sports Consultation</a></li>
+            <li><a href="#" class="hover:underline">Recommendations</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-semibold mb-2">Shop by Brands</h3>
+          <p>YONEX | LI-NING | ASHAWAY | VICTOR | CARLSON | APACS</p>
+        </div>
+        <div>
+          <h3 class="font-semibold mb-2">Download App</h3>
+          <div class="flex space-x-2">
+            <a href="#" class="hover:underline">Google Play</a>
+            <a href="#" class="hover:underline">App Store</a>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="container mx-auto px-4 mt-4 text-center border-t border-gray-700 pt-4">
-      <div class="flex justify-center space-x-4 mb-2">
-        <a href="#" class="hover:text-blue-300"><i class="fab fa-facebook-f"></i></a>
-        <a href="#" class="hover:text-blue-300"><i class="fab fa-twitter"></i></a>
-        <a href="#" class="hover:text-blue-300"><i class="fab fa-instagram"></i></a>
-        <a href="#" class="hover:text-blue-300"><i class="fab fa-linkedin-in"></i></a>
+      <div class="mt-4 text-center">
+        <div class="flex justify-center space-x-4">
+          <a href="#"><i class="fab fa-facebook-f"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+          <a href="#"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+        <p class="mt-2">&copy; 2025 SmashStrix. All rights reserved.</p>
       </div>
-      <p>&copy; 2025 SmashStrix. All rights reserved.</p>
     </div>
   </footer>
 
-  <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" crossorigin="anonymous"></script>
+  <script>
+    // Toggle password visibility
+    function togglePassword(fieldId) {
+      const passwordField = document.getElementById(fieldId);
+      const toggleIcon = document.getElementById(`toggle${fieldId.charAt(0).toUpperCase() + fieldId.slice(1)}`);
+      if (passwordField && toggleIcon) {
+        console.log(`Toggling ${fieldId}, current type: ${passwordField.type}`);
+        if (passwordField.type === "password") {
+          passwordField.type = "text";
+          toggleIcon.classList.remove('fa-eye');
+          toggleIcon.classList.add('fa-eye-slash');
+          console.log(`Changed to text, icon should be fa-eye-slash`);
+        } else {
+          passwordField.type = "password";
+          toggleIcon.classList.remove('fa-eye-slash');
+          toggleIcon.classList.add('fa-eye');
+          console.log(`Changed to password, icon should be fa-eye`);
+        }
+      } else {
+        console.log(`Error: Could not find field ${fieldId} or toggleIcon`);
+      }
+    }
+
+    // Check for signup success alert on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      const showAlert = "{{ show_alert|default:'false' }}";
+      if (showAlert === "True") {
+        Swal.fire({
+          icon: 'success',
+          title: 'Signup Successful!',
+          text: 'You can now log in with your credentials.',
+          confirmButtonText: 'OK'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = "{% url 'login' %}"; // Direct redirect after confirmation
+          }
+        });
+      }
+
+      // OTP Timer
+      let expiryTime = new Date("{{ request.session.otp_expiry|default:current_time|date:'c' }}").getTime();
+      let resendLink = document.getElementById('resend-otp');
+      let timerElement = document.getElementById('timer');
+
+      function updateTimer() {
+        if (timerElement) { // Add null check
+          let now = new Date().getTime();
+          let distance = expiryTime - now;
+          if (distance < 0) {
+            clearInterval(timerInterval);
+            timerElement.textContent = "Expired";
+            if (resendLink) resendLink.style.display = 'inline';
+          } else {
+            let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            let seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            timerElement.textContent = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+          }
+        }
+      }
+
+      let timerInterval = setInterval(updateTimer, 1000);
+      updateTimer(); // Initial call
+
+      // Resend OTP functionality
+      if (resendLink) {
+        resendLink.addEventListener('click', function(e) {
+          e.preventDefault();
+          const userId = this.getAttribute('data-user-id');
+          fetch('/resend-otp/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': '{{ csrf_token }}' },
+            body: `user_id=${userId}`,
+            credentials: 'same-origin'
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              Swal.fire({
+                icon: 'success',
+                title: 'OTP Resent!',
+                text: 'Please check your email.',
+                confirmButtonText: 'OK'
+              });
+              expiryTime = new Date().getTime() + 5 * 60 * 1000; // Reset timer to 5 minutes
+              if (resendLink) resendLink.style.display = 'none';
+              clearInterval(timerInterval);
+              timerInterval = setInterval(updateTimer, 1000);
+              updateTimer();
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to resend OTP. Please try again.',
+                confirmButtonText: 'OK'
+              });
+            }
+          });
+        });
+      }
+    });
+  </script>
 </body>
 </html>

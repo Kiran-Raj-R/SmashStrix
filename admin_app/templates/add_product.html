@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Product - SmashStrix</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Custom styles for sidebar and hover effects */
+    .sidebar {
+      transition: width 0.3s ease;
+    }
+    .sidebar.collapsed {
+      width: 0;
+      padding: 0;
+    }
+    .main-content {
+      transition: margin-left 0.3s ease;
+    }
+    .main-content.expanded {
+      margin-left: 0;
+    }
+    @media (max-width: 640px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      .sidebar.collapsed {
+        transform: translateX(0);
+      }
+      .main-content {
+        margin-left: 0;
+        padding: 0 1rem; /* Ensure padding on mobile */
+      }
+    }
+    @media (min-width: 1024px) {
+      .layout {
+        display: flex;
+        min-height: 100vh; /* Ensure full height */
+        gap: 1rem; /* Adds small gap between sidebar and content */
+      }
+      .sidebar {
+        position: static; /* remove fixed for desktop */
+        width: 64px; 
+        flex-shrink: 0;
+      }
+      .sidebar:not(.collapsed) {
+        width: 256px;
+      }
+      .main-content {
+        flex-grow: 1;
+        margin-left: 0; /* remove margin pushing */
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 font-sans">
+  <!-- Layout Container -->
+  <div class="layout min-h-screen">
+    <!-- Sidebar -->
+    <nav class="sidebar bg-white shadow-lg z-50 md:flex md:flex-col" id="sidebar">
+      <div class="p-4 flex-shrink-0">
+        <h2 class="text-xl font-bold text-gray-800">Smashkart</h2>
+      </div>
+      <ul class="space-y-2 p-4 flex-grow overflow-y-auto">
+        <li><a href="{% url 'admin:index' %}" class="flex items-center p-2 rounded hover:bg-gray-100 text-gray-700"><i class="fa-solid fa-tachometer-alt mr-3"></i> Dashboard</a></li>
+        <li><a href="{% url 'admin:product_list' %}" class="flex items-center p-2 rounded hover:bg-gray-100 text-gray-700"><i class="fa-solid fa-box mr-3"></i> Products</a></li>
+        <li><a href="#" class="flex items-center p-2 rounded hover:bg-gray-100 text-gray-700"><i class="fa-solid fa-list mr-3"></i> Order List</a></li>
+        <li><a href="{% url 'admin:user_list' %}" class="flex items-center p-2 rounded hover:bg-gray-100 text-gray-700"><i class="fa-solid fa-users mr-3"></i> Customers</a></li>
+        <li><a href="#" class="flex items-center p-2 rounded hover:bg-gray-100 text-gray-700"><i class="fa-solid fa-chart-line mr-3"></i> Sales</a></li>
+        <li><a href="{% url 'admin:category_list' %}" class="flex items-center p-2 rounded hover:bg-gray-100 text-gray-700"><i class="fa-solid fa-tags mr-3"></i> Categories</a></li>
+        <li><a href="#" class="flex items-center p-2 rounded hover:bg-gray-100 text-gray-700"><i class="fa-solid fa-ticket mr-3"></i> Coupons</a></li>
+        <li><a href="#" class="flex items-center p-2 rounded hover:bg-gray-100 text-gray-700"><i class="fa-solid fa-image mr-3"></i> Banners</a></li>
+        <li><a href="#" class="flex items-center p-2 rounded hover:bg-gray-100 text-gray-700"><i class="fa-solid fa-user-gear mr-3"></i> Account</a></li>
+        <li><a href="{% url 'admin:logout' %}" class="flex items-center p-2 rounded hover:bg-red-100 text-red-600"><i class="fa-solid fa-sign-out-alt mr-3"></i> Logout</a></li>
+      </ul>
+    </nav>
+
+    <!-- Overlay for Sidebar (Mobile) -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
+
+    <!-- Main Content -->
+    <div class="main-content expanded p-4" id="mainContent">
+      <!-- Header -->
+      <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+        <button id="toggleSidebar" class="md:hidden text-gray-600 mb-4">
+          <i class="fa-solid fa-bars text-2xl"></i>
+        </button>
+        <h1 class="text-3xl font-bold text-gray-800 mb-4 md:mb-0">Add Product</h1>
+      </div>
+
+      {% if error %}
+        <p class="text-red-500 mb-4">{{ error }}</p>
+      {% endif %}
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="bg-white shadow-lg rounded-lg p-6">
+          <div class="mb-4">
+            <label class="block text-sm font-medium">Name</label>
+            <input type="text" name="name" class="w-full border rounded-lg p-2 mt-1" required>
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium">Category</label>
+            <select name="category" class="w-full border rounded-lg p-2 mt-1" required>
+              {% for cat in categories %}
+                <option value="{{ cat.id }}">{{ cat.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium">Images (Min 3)</label>
+            <input type="file" name="images" multiple class="w-full border rounded-lg p-2 mt-1" required>
+          </div>
+          <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Add Product</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" crossorigin="anonymous"></script>
+  <script>
+    // Sidebar Toggle
+    const toggleSidebar = document.getElementById('toggleSidebar');
+    const sidebar = document.querySelector('.sidebar');
+    const mainContent = document.querySelector('.main-content');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+    toggleSidebar.addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed');
+      mainContent.classList.toggle('expanded');
+      sidebarOverlay.classList.toggle('hidden');
+    });
+
+    sidebarOverlay.addEventListener('click', () => {
+      sidebar.classList.add('collapsed');
+      mainContent.classList.add('expanded');
+      sidebarOverlay.classList.add('hidden');
+    });
+
+    // Form Validation Script
+    document.querySelector('form').addEventListener('submit', (e) => {
+      const files = document.querySelector('input[name="images"]').files;
+      if (files.length < 3) {
+        e.preventDefault();
+        alert('Please upload at least 3 images.');
+      }
+    });
+  </script>
+</body>
+</html>

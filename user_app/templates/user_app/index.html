@@ -6,6 +6,26 @@
   <title>SmashStrix - Badminton Gear</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #4CAF50;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      z-index: 1000;
+      display: none;
+      animation: fadeInOut 3s ease-in-out;
+    }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translateY(20px); }
+      10% { opacity: 1; transform: translateY(0); }
+      90% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(20px); }
+    }
     .product-card img {
       transition: transform 0.2s;
     }
@@ -16,10 +36,98 @@
       background-color: #e0f2fe;
     }
     .hero-bg {
-      background-image: url('https://via.placeholder.com/1200x400');
-      background-size: cover;
-      background-position: center;
+    background-image: url('/media/sliding img2.webp'); 
+    background-size: cover; 
+    background-position: center; 
+    background-repeat: no-repeat; 
+    width: 100%; 
+    min-height: 400px; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative; 
+  }
+
+  .brand-card {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 150px;
+    border: 2px solid #e5e7eb;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+    border-radius: 8px; 
+    overflow: hidden; 
+  }
+
+  .brand-image {
+    max-width: 100%; 
+    max-height: 100%;
+    object-fit: contain; 
+    transition: transform 0.3s ease; 
+  }
+
+  .brand-image:hover {
+    transform: scale(1.1);
+  }
+
+  .product-card {
+    border: 2px solid #e5e7eb;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+    border-radius: 8px;
+    overflow: hidden; 
+    background-color: #ffffff;
+  }
+
+  .product-image {
+    max-width: 100%; 
+    max-height: 100%;
+    object-fit: cover; 
+    transition: transform 0.3s ease;
+  }
+
+  .product-card:hover .product-image {
+    transform: scale(1.05); 
+  }
+
+  @media (max-width: 768px) {
+    .hero-bg {
+      min-height: 300px;
     }
+    .product-card .w-full.h-64 {
+      height: 200px; 
+    }
+    .product-card .w-full.h-48 {
+      height: 120px; 
+    }
+    .brand-card {
+      height: 120px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hero-bg {
+      min-height: 200px; 
+    }
+    .hero-bg h1 {
+      font-size: 2xl; 
+    }
+    .hero-bg p {
+      font-size: lg;
+    }
+    .hero-bg button {
+      padding: 2px 8px;
+    }
+    .product-card .w-full.h-64 {
+      height: 150px; 
+    }
+    .product-card .w-full.h-48 {
+      height: 100px; 
+    }
+    .brand-card {
+      height: 100px;
+    }
+  }
   </style>
 </head>
 <body class="bg-gray-50 font-sans">
@@ -31,19 +139,16 @@
   <!-- Header -->
   <header class="bg-blue-800 text-white shadow-md">
     <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-      <div class="text-2xl font-bold flex items-center">
+      <a href="{% url 'home' %}" class="text-2xl font-bold flex items-center hover:text-blue-200">
         <span>Smashstrix</span>
-      </div>
-      <div class="relative">
-        <input type="text" id="search" placeholder="Search..." class="border rounded p-2 text-black w-64">
-        <button id="clear-search" class="absolute right-2 top-2 bg-red-500 text-white px-2 py-1 rounded" style="display: none;">X</button>
-      </div>
+      </a>
       <div class="flex space-x-4 items-center">
-        <a href="#" class="hover:text-blue-200">Cart</a>
+        <a href="#" class="hover:text-blue-200"><i class="fa-solid fa-shopping-cart"></i></a>
+        <a href="#" class="hover:text-blue-200"><i class="fa-solid fa-heart"></i></a>
         {% if user.is_authenticated %}
-          <a href="{% url 'logout' %}" class="hover:text-blue-200">Logout</a>
+          <a href="{% url 'user_page' %}" class="hover:text-blue-200"><i class="fa-solid fa-user"></i></a>
         {% else %}
-          <a href="{% url 'login' %}" class="hover:text-blue-200">Login</a>
+          <a href="{% url 'login' %}" class="hover:text-blue-200"><i class="fa-solid fa-user"></i></a>
         {% endif %}
       </div>
     </div>
@@ -56,231 +161,215 @@
     <button class="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Shop Now</button>
   </section>
 
-  <!-- Filter and Sort Section -->
-  <div class="container mx-auto px-4 py-4">
-    <div class="flex space-x-4">
-      <select id="sort" class="border rounded p-2">
-        <option value="">Sort By</option>
-        <option value="price_low">Price: Low to High</option>
-        <option value="price_high">Price: High to Low</option>
-        <option value="name_asc">A-Z</option>
-        <option value="name_desc">Z-A</option>
-      </select>
-      <select id="category" class="border rounded p-2">
-        <option value="">All Categories</option>
-      </select>
-      <input type="number" id="min_price" placeholder="Min Price" class="border rounded p-2 w-20">
-      <input type="number" id="max_price" placeholder="Max Price" class="border rounded p-2 w-20">
-    </div>
-  </div>
-
   <!-- Brands Section -->
   <section class="container mx-auto py-10 text-center">
-    <h2 class="text-2xl font-semibold">BRANDS YOU LOVE</h2>
-    <p class="mt-2 text-gray-600">NOW IN SmashStrix !</p>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-6">
-      <div class="p-4 border rounded">YONEX</div>
-      <div class="p-4 border rounded">LI-NING</div>
-      <div class="p-4 border rounded">ASHAWAY</div>
-      <div class="p-4 border rounded">APACS</div>
+  <h2 class="text-2xl font-semibold">BRANDS YOU LOVE</h2>
+  <p class="mt-2 text-gray-600">NOW IN SmashStrix !</p>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-6">
+    <div class="brand-card p-4 border rounded overflow-hidden">
+      <img src="/media/yonex.png" alt="Yonex" class="brand-image">
     </div>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-4 text-green-600 font-semibold">
-      <p>FLAT 15% OFF</p>
-      <p>FLAT 15% OFF</p>
-      <p>FLAT 15% OFF</p>
-      <p>FLAT 15% OFF</p>
+    <div class="brand-card p-4 border rounded overflow-hidden">
+      <img src="/media/li-ning.jpeg" alt="LI-NING" class="brand-image">
     </div>
-  </section>
+    <div class="brand-card p-4 border rounded overflow-hidden">
+      <img src="/media/ashaway.png" alt="AshaWay" class="brand-image">
+    </div>
+    <div class="brand-card p-4 border rounded overflow-hidden">
+      <img src="/media/apacs.png" alt="Apacs" class="brand-image">
+    </div>
+  </div>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-4 text-green-600 font-semibold">
+    <p>FLAT 15% OFF</p>
+    <p>FLAT 15% OFF</p>
+    <p>FLAT 15% OFF</p>
+    <p>FLAT 15% OFF</p>
+  </div>
+</section>
 
   <!-- Product Showcase -->
   <section class="container mx-auto py-10 text-center">
     <h2 class="text-2xl font-semibold">WITH SO MANY CHOICES</h2>
     <p class="mt-2 text-gray-600">Small prices for big joy!</p>
-    <!-- <div id="product-showcase" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-6"></div> -->
-     <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-                <div class="product-card text-center cursor-pointer">
-                    <div class="w-full h-64 bg-gradient-to-br from-blue-100 to-blue-200 mb-4 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-table-tennis text-6xl text-blue-600"></i>
-                    </div>
-                    <p class="font-medium text-lg">₹699</p>
-                    <p class="text-sm text-gray-600">Apacs Finapi</p>
-                </div>
-                <div class="product-card text-center cursor-pointer">
-                    <div class="w-full h-64 bg-gradient-to-br from-red-100 to-red-200 mb-4 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-table-tennis text-6xl text-red-600"></i>
-                    </div>
-                    <p class="font-medium text-lg">₹899</p>
-                    <p class="text-sm text-gray-600">Nivia Flash</p>
-                </div>
-                <div class="product-card text-center cursor-pointer">
-                    <div class="w-full h-64 bg-gradient-to-br from-green-100 to-green-200 mb-4 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-table-tennis text-6xl text-green-600"></i>
-                    </div>
-                    <p class="font-medium text-lg">₹759</p>
-                    <p class="text-sm text-gray-600">Li-Ning Ignite</p>
-                </div>
-                <div class="product-card text-center cursor-pointer">
-                    <div class="w-full h-64 bg-gradient-to-br from-purple-100 to-purple-200 mb-4 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-table-tennis text-6xl text-purple-600"></i>
-                    </div>
-                    <p class="font-medium text-lg">₹959</p>
-                    <p class="text-sm text-gray-600">Vector X Ranger</p>
-                </div>
-            </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+      <div class="product-card text-center cursor-pointer">
+        <div class="w-full h-64 bg-gradient-to-br from-blue-100 to-blue-200 mb-4 rounded-lg flex items-center justify-center">
+          <i class="fas fa-table-tennis text-6xl text-blue-600"></i>
+        </div>
+        <p class="font-medium text-lg">₹699</p>
+        <p class="text-sm text-gray-600">Apacs Finapi</p>
+      </div>
+      <div class="product-card text-center cursor-pointer">
+        <div class="w-full h-64 bg-gradient-to-br from-red-100 to-red-200 mb-4 rounded-lg flex items-center justify-center">
+          <i class="fas fa-table-tennis text-6xl text-red-600"></i>
+        </div>
+        <p class="font-medium text-lg">₹899</p>
+        <p class="text-sm text-gray-600">Nivia Flash</p>
+      </div>
+      <div class="product-card text-center cursor-pointer">
+        <div class="w-full h-64 bg-gradient-to-br from-green-100 to-green-200 mb-4 rounded-lg flex items-center justify-center">
+          <i class="fas fa-table-tennis text-6xl text-green-600"></i>
+        </div>
+        <p class="font-medium text-lg">₹759</p>
+        <p class="text-sm text-gray-600">Li-Ning Ignite</p>
+      </div>
+      <div class="product-card text-center cursor-pointer">
+        <div class="w-full h-64 bg-gradient-to-br from-purple-100 to-purple-200 mb-4 rounded-lg flex items-center justify-center">
+          <i class="fas fa-table-tennis text-6xl text-purple-600"></i>
+        </div>
+        <p class="font-medium text-lg">₹959</p>
+        <p class="text-sm text-gray-600">Vector X Ranger</p>
+      </div>
+    </div>
   </section>
 
   <!-- Best Under Section -->
   <section class="container mx-auto py-10 text-center">
-    <h2 class="text-2xl font-semibold">BEST UNDER ₹999</h2>
-    <p class="mt-2 text-gray-600">Small prices for big joy!</p>
-    <!-- <div id="best-under" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-6"></div> -->
-     <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
-                <div class="product-card text-center cursor-pointer">
-                    <div class="w-full h-64 bg-gradient-to-br from-yellow-100 to-yellow-200 mb-4 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-running text-6xl text-yellow-600"></i>
-                    </div>
-                    <div class="text-left">
-                        <p class="text-orange-500 font-medium text-lg">Nivia</p>
-                        <p class="text-gray-800 mb-2">Tightgrip Badminton shoe</p>
-                        <p class="font-medium text-lg">₹699</p>
-                    </div>
-                </div>
-                <div class="product-card text-center cursor-pointer">
-                    <div class="w-full h-64 bg-gradient-to-br from-indigo-100 to-indigo-200 mb-4 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-running text-6xl text-indigo-600"></i>
-                    </div>
-                    <div class="text-left">
-                        <p class="text-orange-500 font-medium text-lg">Yonex</p>
-                        <p class="text-gray-800 mb-2">Indoor grip shoe</p>
-                        <p class="font-medium text-lg">₹899</p>
-                    </div>
-                </div>
-                <div class="product-card text-center cursor-pointer">
-                    <div class="w-full h-64 bg-gradient-to-br from-pink-100 to-pink-200 mb-4 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-running text-6xl text-pink-600"></i>
-                    </div>
-                    <div class="text-left">
-                        <p class="text-orange-500 font-medium text-lg">Vector</p>
-                        <p class="text-gray-800 mb-2">Indoor and outdoor shoe</p>
-                        <p class="font-medium text-lg">₹759</p>
-                    </div>
-                </div>
-                <div class="product-card text-center cursor-pointer">
-                    <div class="w-full h-64 bg-gradient-to-br from-teal-100 to-teal-200 mb-4 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-running text-6xl text-teal-600"></i>
-                    </div>
-                    <div class="text-left">
-                        <p class="text-orange-500 font-medium text-lg">Apacs</p>
-                        <p class="text-gray-800 mb-2">Finappi 100</p>
-                        <p class="font-medium text-lg">₹959</p>
-                    </div>
-                </div>
-            </div>
-  </section>
+  <h2 class="text-2xl font-semibold">BEST UNDER ₹999</h2>
+  <p class="mt-2 text-gray-600">Small prices for big joy!</p>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+    <div class="product-card text-center cursor-pointer">
+      <div class="w-full h-64 bg-white mb-4 rounded-lg flex items-center justify-center overflow-hidden">
+        <img src="/media/nivia appeal.webp" alt="Nivia Tightgrip Shoe" class="product-image">
+      </div>
+      <div class="text-left">
+        <p class="text-orange-500 font-medium text-lg">Nivia</p>
+        <p class="text-gray-800 mb-2">Tightgrip Badminton shoe</p>
+        <p class="font-medium text-lg">₹699</p>
+      </div>
+    </div>
+    <div class="product-card text-center cursor-pointer">
+      <div class="w-full h-64 bg-white mb-4 rounded-lg flex items-center justify-center overflow-hidden">
+        <img src="/media/yonex shoe.webp" alt="Yonex Indoor Grip Shoe" class="product-image">
+      </div>
+      <div class="text-left">
+        <p class="text-orange-500 font-medium text-lg">Yonex</p>
+        <p class="text-gray-800 mb-2">Indoor grip shoe</p>
+        <p class="font-medium text-lg">₹899</p>
+      </div>
+    </div>
+    <div class="product-card text-center cursor-pointer">
+      <div class="w-full h-64 bg-white mb-4 rounded-lg flex items-center justify-center overflow-hidden">
+        <img src="/media/vector x.webp" alt="Vector Indoor and Outdoor Shoe" class="product-image">
+      </div>
+      <div class="text-left">
+        <p class="text-orange-500 font-medium text-lg">Vector</p>
+        <p class="text-gray-800 mb-2">Indoor and outdoor shoe</p>
+        <p class="font-medium text-lg">₹759</p>
+      </div>
+    </div>
+    <div class="product-card text-center cursor-pointer">
+      <div class="w-full h-64 bg-white mb-4 rounded-lg flex items-center justify-center overflow-hidden">
+        <img src="/media/apacs finapi.webp" alt="Apacs Finappi 100" class="product-image">
+      </div>
+      <div class="text-left">
+        <p class="text-orange-500 font-medium text-lg">Apacs</p>
+        <p class="text-gray-800 mb-2">Finappi 100</p>
+        <p class="font-medium text-lg">₹959</p>
+      </div>
+    </div>
+  </div>
+</section>
 
   <!-- For All Ages Section -->
   <section class="container mx-auto py-10 text-center">
-    <h2 class="text-2xl font-semibold">FOR ALL AGES !!</h2>
-    <p class="mt-2 text-gray-600">Small prices for big joy!</p>
-    <!-- <div id="for-all-ages" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-6"></div> -->
-     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="product-card text-center cursor-pointer">
-                    <div class="w-full h-64 bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-circle text-6xl text-orange-600"></i>
-                    </div>
-                </div>
-                <div class="product-card text-center cursor-pointer">
-                    <div class="w-full h-64 bg-gradient-to-br from-cyan-100 to-cyan-200 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-table-tennis text-6xl text-cyan-600"></i>
-                    </div>
-                </div>
-                <div class="product-card text-center cursor-pointer">
-                    <div class="w-full h-64 bg-gradient-to-br from-rose-100 to-rose-200 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-table-tennis text-6xl text-rose-600"></i>
-                    </div>
-                </div>
-            </div>
-  </section>
+  <h2 class="text-2xl font-semibold">FOR ALL AGES !!</h2>
+  <p class="mt-2 text-gray-600">Small prices for big joy!</p>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <div class="product-card text-center cursor-pointer">
+      <div class="w-full h-64 bg-white rounded-lg flex items-center justify-center overflow-hidden">
+        <img src="/media/ashaway 1.png" alt="Badminton Gear" class="product-image">
+      </div>
+    </div>
+    <div class="product-card text-center cursor-pointer">
+      <div class="w-full h-64 bg-white rounded-lg flex items-center justify-center overflow-hidden">
+        <img src="/media/yonex 1.jpeg" alt="Badminton Gear" class="product-image">
+      </div>
+    </div>
+    <div class="product-card text-center cursor-pointer">
+      <div class="w-full h-64 bg-white rounded-lg flex items-center justify-center overflow-hidden">
+        <img src="/media/li-ning ignite.webp" alt="Badminton Gear" class="product-image">
+      </div>
+    </div>
+  </div>
+</section>>
 
   <!-- Feel Good Deals -->
   <section class="container mx-auto py-10 text-center">
-    <h2 class="text-2xl font-semibold">FEEL-GOOD DEALS</h2>
-    <p class="mt-2 text-gray-600">Enjoy extra treats for you and your game!</p>
-    <!-- <div id="feel-good-deals" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-6"></div> -->
-     <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-                <div class="product-card text-center cursor-pointer">
-                    <div class="w-full h-48 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-gift text-4xl text-emerald-600"></i>
-                    </div>
-                </div>
-                <div class="product-card text-center cursor-pointer">
-                    <div class="w-full h-48 bg-gradient-to-br from-violet-100 to-violet-200 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-gift text-4xl text-violet-600"></i>
-                    </div>
-                </div>
-                <div class="product-card text-center cursor-pointer">
-                    <div class="w-full h-48 bg-gradient-to-br from-amber-100 to-amber-200 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-gift text-4xl text-amber-600"></i>
-                    </div>
-                </div>
-                <div class="product-card text-center cursor-pointer">
-                    <div class="w-full h-48 bg-gradient-to-br from-lime-100 to-lime-200 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-gift text-4xl text-lime-600"></i>
-                    </div>
-                </div>
-            </div>
-    <!-- <div id="feel-good-deals-pagination" class="mt-4 flex justify-center"></div> -->
-  </section>
+  <h2 class="text-2xl font-semibold">FEEL-GOOD DEALS</h2>
+  <p class="mt-2 text-gray-600">Enjoy extra treats for you and your game!</p>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+    <div class="product-card text-center cursor-pointer">
+      <div class="w-full h-48 bg-white rounded-lg flex items-center justify-center overflow-hidden">
+        <img src="/media/mavis 350.jpg" alt="Feel-Good Deal 1" class="product-image">
+      </div>
+    </div>
+    <div class="product-card text-center cursor-pointer">
+      <div class="w-full h-48 bg-white rounded-lg flex items-center justify-center overflow-hidden">
+        <img src="/media/vector x ranger.webp" alt="Feel-Good Deal 2" class="product-image">
+      </div>
+    </div>
+    <div class="product-card text-center cursor-pointer">
+      <div class="w-full h-48 bg-white rounded-lg flex items-center justify-center overflow-hidden">
+        <img src="/media/lining 1.jpeg" alt="Feel-Good Deal 3" class="product-image">
+      </div>
+    </div>
+    <div class="product-card text-center cursor-pointer">
+      <div class="w-full h-48 bg-white rounded-lg flex items-center justify-center overflow-hidden">
+        <img src="/media/nivia flash.webp" alt="Feel-Good Deal 4" class="product-image">
+      </div>
+    </div>
+  </div>
+</section>
 
   <!-- Super Deals -->
-  <section class="container mx-auto py-10 text-center">
-    <h2 class="text-2xl font-semibold">SUPER DEALS</h2>
-    <p class="mt-2 text-gray-600">Small prices for big joy!</p>
-    <!-- <div id="super-deals" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-6"></div> -->
-     <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-                <div class="product-card text-center cursor-pointer">
-                    <div class="w-full h-64 bg-gradient-to-br from-slate-100 to-slate-200 mb-4 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-table-tennis text-6xl text-slate-600"></i>
-                    </div>
-                    <div class="text-left">
-                        <p class="text-orange-500 font-medium text-lg">Apacs</p>
-                        <p class="text-gray-800 mb-2">finappi 2000</p>
-                        <p class="font-medium text-lg">₹2999</p>
-                    </div>
-                </div>
-                <div class="product-card text-center cursor-pointer">
-                    <div class="w-full h-64 bg-gradient-to-br from-red-100 to-red-200 mb-4 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-table-tennis text-6xl text-red-600"></i>
-                    </div>
-                    <div class="text-left">
-                        <p class="text-orange-500 font-medium text-lg">Yonex</p>
-                        <p class="text-gray-800 mb-2">Voltric 38i</p>
-                        <p class="font-medium text-lg">₹1299</p>
-                    </div>
-                </div>
-                <div class="product-card text-center cursor-pointer">
-                    <div class="w-full h-64 bg-gradient-to-br from-blue-100 to-blue-200 mb-4 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-table-tennis text-6xl text-blue-600"></i>
-                    </div>
-                    <div class="text-left">
-                        <p class="text-orange-500 font-medium text-lg">Victor</p>
-                        <p class="text-gray-800 mb-2">Victor muscle</p>
-                        <p class="font-medium text-lg">₹1799</p>
-                    </div>
-                </div>
-                <div class="product-card text-center cursor-pointer">
-                    <div class="w-full h-64 bg-gradient-to-br from-green-100 to-green-200 mb-4 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-table-tennis text-6xl text-green-600"></i>
-                    </div>
-                    <div class="text-left">
-                        <p class="text-orange-500 font-medium text-lg">Yonex</p>
-                        <p class="text-gray-800 mb-2">Nanoray 400</p>
-                        <p class="font-medium text-lg">₹2990</p>
-                    </div>
-                </div>
-            </div>
-    <div id="super-deals-pagination" class="mt-4 flex justify-center"></div>
-  </section>
+ <section class="container mx-auto py-10 text-center">
+  <h2 class="text-2xl font-semibold">SUPER DEALS</h2>
+  <p class="mt-2 text-gray-600">Small prices for big joy!</p>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+    <div class="product-card text-center cursor-pointer">
+      <div class="w-full h-64 bg-white mb-4 rounded-lg flex items-center justify-center overflow-hidden">
+        <img src="/media/apacs finapi.webp" alt="Apacs Finappi 2000" class="product-image">
+      </div>
+      <div class="text-left">
+        <p class="text-orange-500 font-medium text-lg">Apacs</p>
+        <p class="text-gray-800 mb-2">finappi 2000</p>
+        <p class="font-medium text-lg">₹2999</p>
+      </div>
+    </div>
+    <div class="product-card text-center cursor-pointer">
+      <div class="w-full h-64 bg-white mb-4 rounded-lg flex items-center justify-center overflow-hidden">
+        <img src="/media/yonex muscle.jpg" alt="Yonex Voltric 38i" class="product-image">
+      </div>
+      <div class="text-left">
+        <p class="text-orange-500 font-medium text-lg">Yonex</p>
+        <p class="text-gray-800 mb-2">Voltric 38i</p>
+        <p class="font-medium text-lg">₹1299</p>
+      </div>
+    </div>
+    <div class="product-card text-center cursor-pointer">
+      <div class="w-full h-64 bg-white mb-4 rounded-lg flex items-center justify-center overflow-hidden">
+        <img src="/media/vector 1.jpeg" alt="Victor Muscle" class="product-image">
+      </div>
+      <div class="text-left">
+        <p class="text-orange-500 font-medium text-lg">Victor</p>
+        <p class="text-gray-800 mb-2">Victor muscle</p>
+        <p class="font-medium text-lg">₹1799</p>
+      </div>
+    </div>
+    <div class="product-card text-center cursor-pointer">
+      <div class="w-full h-64 bg-white mb-4 rounded-lg flex items-center justify-center overflow-hidden">
+        <img src="/media/yonex 2.jpeg" alt="Yonex Nanoray 400" class="product-image">
+      </div>
+      <div class="text-left">
+        <p class="text-orange-500 font-medium text-lg">Yonex</p>
+        <p class="text-gray-800 mb-2">Nanoray 400</p>
+        <p class="font-medium text-lg">₹2990</p>
+      </div>
+    </div>
+  </div>
+  <div id="super-deals-pagination" class="mt-4 flex justify-center"></div>
+</section>
 
   <!-- Newsletter Section -->
   <section class="bg-gray-100 py-10 text-center">
@@ -368,21 +457,49 @@
     </div>
   </footer>
 
-  <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+  <div id="loginToast" class="toast">Logged in successfully !</div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" crossorigin="anonymous"></script>
+  <script>
+  // Check for login success on page load
+  window.addEventListener('load', () => {
+    const loginSuccess = "{{ request.session.login_success|default:'false' }}";
+    if (loginSuccess === "True") {
+      const toast = document.getElementById('loginToast');
+      toast.style.display = 'block';
+      setTimeout(() => {
+        toast.style.display = 'none';
+        // Clear the session flag after displaying
+        fetch('/clear-login-success/', {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+          },
+        }).then(() => {
+          console.log('Login success flag cleared');
+        }).catch(error => {
+          console.error('Failed to clear login success flag:', error);
+          // Fallback: Clear manually if fetch fails
+          const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+          fetch('/clear-login-success/', {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': csrfToken,
+              'Content-Type': 'application/json',
+            },
+          });
+        });
+      }, 3000); // Hide after 3 seconds
+    }
+  });
+</script>
   <script>
     async function fetchProducts(sectionId, paginationId, filter = {}) {
       const search = document.getElementById('search').value;
-      const sort = document.getElementById('sort').value;
-      const category = document.getElementById('category').value;
-      const min_price = document.getElementById('min_price').value;
-      const max_price = document.getElementById('max_price').value;
       const params = new URLSearchParams({
         ...filter,
         search: search || '',
-        sort: sort || '',
-        category: category || '',
-        min_price: min_price || '',
-        max_price: max_price || '',
         page: 1,
         page_size: 4,
       }).toString();
@@ -407,34 +524,6 @@
     }
 
     document.getElementById('search').addEventListener('input', () => {
-      fetchProducts('product-showcase', 'product-showcase-pagination');
-      fetchProducts('best-under', 'best-under-pagination', { max_price: 999 });
-      fetchProducts('for-all-ages', 'for-all-ages-pagination');
-      fetchProducts('feel-good-deals', 'feel-good-deals-pagination');
-      fetchProducts('super-deals', 'super-deals-pagination');
-    });
-    document.getElementById('sort').addEventListener('change', () => {
-      fetchProducts('product-showcase', 'product-showcase-pagination');
-      fetchProducts('best-under', 'best-under-pagination', { max_price: 999 });
-      fetchProducts('for-all-ages', 'for-all-ages-pagination');
-      fetchProducts('feel-good-deals', 'feel-good-deals-pagination');
-      fetchProducts('super-deals', 'super-deals-pagination');
-    });
-    document.getElementById('category').addEventListener('change', () => {
-      fetchProducts('product-showcase', 'product-showcase-pagination');
-      fetchProducts('best-under', 'best-under-pagination', { max_price: 999 });
-      fetchProducts('for-all-ages', 'for-all-ages-pagination');
-      fetchProducts('feel-good-deals', 'feel-good-deals-pagination');
-      fetchProducts('super-deals', 'super-deals-pagination');
-    });
-    document.getElementById('min_price').addEventListener('change', () => {
-      fetchProducts('product-showcase', 'product-showcase-pagination');
-      fetchProducts('best-under', 'best-under-pagination', { max_price: 999 });
-      fetchProducts('for-all-ages', 'for-all-ages-pagination');
-      fetchProducts('feel-good-deals', 'feel-good-deals-pagination');
-      fetchProducts('super-deals', 'super-deals-pagination');
-    });
-    document.getElementById('max_price').addEventListener('change', () => {
       fetchProducts('product-showcase', 'product-showcase-pagination');
       fetchProducts('best-under', 'best-under-pagination', { max_price: 999 });
       fetchProducts('for-all-ages', 'for-all-ages-pagination');

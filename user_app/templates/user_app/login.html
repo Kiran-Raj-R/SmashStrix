@@ -2,64 +2,98 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SmashStrix - Login</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    .password-toggle {
+      cursor: pointer;
+      color: #6b7280;
+      font-size: 1.2rem;
+      position: absolute;
+      right: 8px;
+      top: 55%;
+      transform: translateY(-50%);
+    }
+
+    .password-toggle:hover {
+      color: #4b5563;
+    }
+
+    .password-wrapper {
+      position: relative;
+    }
+
+    .google-container {
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .google-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      padding: 8px 16px;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      color: #3c4043;
+      text-decoration: none;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .google-btn img {
+      height: 18px;
+      margin-right: 8px;
+    }
+
+  </style>
 </head>
 <body class="bg-gray-50 font-sans">
-  <!-- Header -->
   <header class="bg-blue-800 text-white shadow-md">
     <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-      <div class="text-2xl font-bold flex items-center">
+      <a href="{% url 'home' %}" class="text-2xl font-bold flex items-center hover:text-blue-200">
         <span>Smashstrix</span>
-      </div>
-      <div class="relative">
-        <input type="text" placeholder="Search..." class="border rounded p-2 text-black w-64" disabled>
-      </div>
+      </a>
       <div class="flex space-x-4 items-center">
-        <a href="{% url 'home' %}" class="hover:text-blue-200">Home</a>
+        <a href="#" class="hover:text-blue-200"><i class="fa-solid fa-shopping-cart"></i></a>
+        <a href="#" class="hover:text-blue-200"><i class="fa-solid fa-heart"></i></a>
+        {% if user.is_authenticated %}
+          <a href="{% url 'user_page' %}" class="hover:text-blue-200"><i class="fa-solid fa-user"></i></a>
+        {% else %}
+          <a href="{% url 'login' %}" class="hover:text-blue-200"><i class="fa-solid fa-user"></i></a>
+        {% endif %}
       </div>
     </div>
   </header>
 
   <div class="container mx-auto p-4 flex justify-center">
     <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-md mt-10">
+      <div class="google-container mb-6">
+        <a href="{% url 'social:begin' 'google-oauth2' %}" class="google-btn">
+          <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo">
+          <span>Sign in with Google</span>
+        </a>
+      </div>
+      <hr class="my-4 border-gray-300">
       {% if error %}
         <p class="text-red-500 text-center mb-4">{{ error }}</p>
       {% endif %}
-      <form method="post" action="{% url 'login' %}">
-        {% csrf_token %}
-        <h2 class="text-2xl font-semibold mb-4 text-center">Login</h2>
-        <div class="mb-4">
-          <label class="block text-sm font-medium">Email</label>
-          <input type="email" name="username" class="w-full border rounded p-2 mt-1" required>
-        </div>
-        <div class="mb-4">
-          <label class="block text-sm font-medium">Password</label>
-          <input type="password" name="password" class="w-full border rounded p-2 mt-1" required>
-        </div>
-        <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Login</button>
-      </form>
-      <div class="mt-4 text-center">
-        <a href="{% url 'forgot_password' %}" class="text-blue-600 hover:underline">Forgot Password?</a>
-      </div>
-      <div class="mt-4 text-center">
-        <a href="{% url 'social:begin' 'google-oauth2' %}" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Login with Google</a>
-      </div>
-      <p class="mt-4 text-center">Don't have an account? <a href="{% url 'signup' %}" class="text-blue-600 hover:underline">Sign Up</a></p>
       {% if show_forgot %}
-        <form method="post" action="{% url 'forgot_password' %}" class="mt-4">
+        <form method="post" action="{% url 'forgot_password' %}">
           {% csrf_token %}
           <h2 class="text-2xl font-semibold mb-4 text-center">Forgot Password</h2>
           <div class="mb-4">
             <label class="block text-sm font-medium">Email</label>
             <input type="email" name="email" class="w-full border rounded p-2 mt-1" required>
           </div>
-          <button type="submit" class="w-full bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700">Send OTP</button>
+          <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Send OTP</button>
         </form>
-      {% endif %}
-      {% if show_reset %}
-        <form method="post" action="{% url 'reset_password' %}" class="mt-4">
+        <a href="{% url 'login' %}" class="block text-center mt-2 text-blue-600 hover:underline">Back to Login</a>
+      {% elif show_reset %}
+        <form method="post" action="{% url 'reset_password' %}">
           {% csrf_token %}
           <h2 class="text-2xl font-semibold mb-4 text-center">Reset Password</h2>
           <div class="mb-4">
@@ -70,63 +104,105 @@
             <label class="block text-sm font-medium">New Password</label>
             <input type="password" name="new_password" class="w-full border rounded p-2 mt-1" required>
           </div>
-          <button type="submit" class="w-full bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700">Reset</button>
+          <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Reset Password</button>
         </form>
+      {% else %}
+        <form method="post" action="{% url 'login' %}">
+          {% csrf_token %}
+          <h2 class="text-2xl font-semibold mb-4 text-center">Login</h2>
+          <div class="mb-4 password-wrapper">
+            <label class="block text-sm font-medium">Email</label>
+            <input type="email" name="email" class="w-full border rounded p-2 mt-1" required>
+          </div>
+          <div class="mb-4 password-wrapper">
+            <label class="block text-sm font-medium">Password</label>
+            <input type="password" name="password" id="login_password" class="w-full border rounded p-2 mt-1 pr-10" required>
+            <i class="fas fa-eye password-toggle" id="toggleLoginPassword" onclick="togglePassword('login_password')"></i>
+          </div>
+          <button type="submit" class="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Login</button>
+          <p class="mt-2 text-center text-sm">Forgot Password? <a href="{% url 'forgot_password' %}" class="text-blue-600 hover:underline"><i class="fa-solid fa-key"></i> </a></p>
+        </form>
+        <p class="mt-4 text-center">Don't have an account? <a href="{% url 'signup' %}" class="text-blue-600 hover:underline"><i class="fa-solid fa-user-plus"></i></a></p>
       {% endif %}
     </div>
   </div>
 
- <!-- Footer -->
   <footer class="bg-gray-800 text-white py-6">
-    <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-5 gap-8">
-      <div>
-        <h3 class="text-lg font-semibold mb-2">Quick Links</h3>
-        <ul class="mt-2 space-y-1">
-          <li><a href="#" class="hover:text-blue-300">Contact Us</a></li>
-          <li><a href="#" class="hover:text-blue-300">FAQ's & Return Policy</a></li>
-          <li><a href="#" class="hover:text-blue-300">Track your order</a></li>
-          <li><a href="#" class="hover:text-blue-300">Privacy Policy</a></li>
-        </ul>
-      </div>
-      <div>
-        <h3 class="text-lg font-semibold mb-2">Explore</h3>
-        <ul class="mt-2 space-y-1">
-          <li><a href="/about-us/" class="hover:text-blue-300">About Us</a></li>
-          <li><a href="#" class="hover:text-blue-300">Happy customers</a></li>
-          <li><a href="#" class="hover:text-blue-300">Knowledge Center</a></li>
-          <li><a href="#" class="hover:text-blue-300">In the News</a></li>
-        </ul>
-      </div>
-      <div>
-        <h3 class="text-lg font-semibold mb-2">Services</h3>
-        <ul class="mt-2 space-y-1">
-          <li><a href="#" class="hover:text-blue-300">Sports Consultation</a></li>
-          <li><a href="#" class="hover:text-blue-300">Recommendations</a></li>
-        </ul>
-      </div>
-      <div>
-        <h3 class="text-lg font-semibold mb-2">Shop by Brands</h3>
-        <p class="mt-2">YONEX | LI-NING | ASHAWAY | VICTOR | CARLSON | APACS</p>
-      </div>
-      <div>
-        <h3 class="text-lg font-semibold mb-2">Download App</h3>
-        <div class="flex space-x-2 mt-2">
-          <a href="#" class="hover:text-blue-300">Google Play</a>
-          <a href="#" class="hover:text-blue-300">App Store</a>
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <div>
+          <h3 class="font-semibold mb-2">Quick Links</h3>
+          <ul class="space-y-1">
+            <li><a href="#" class="hover:underline">Contact Us</a></li>
+            <li><a href="#" class="hover:underline">FAQ's & Return Policy</a></li>
+            <li><a href="#" class="hover:underline">Track your order</a></li>
+            <li><a href="#" class="hover:underline">Privacy Policy</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-semibold mb-2">Explore</h3>
+          <ul class="space-y-1">
+            <li><a href="#" class="hover:underline">About Us</a></li>
+            <li><a href="#" class="hover:underline">Happy customers</a></li>
+            <li><a href="#" class="hover:underline">Knowledge Center</a></li>
+            <li><a href="#" class="hover:underline">In the News</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-semibold mb-2">Services</h3>
+          <ul class="space-y-1">
+            <li><a href="#" class="hover:underline">Sports Consultation</a></li>
+            <li><a href="#" class="hover:underline">Recommendations</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-semibold mb-2">Shop by Brands</h3>
+          <p>YONEX | LI-NING | ASHAWAY | VICTOR | CARLSON | APACS</p>
+        </div>
+        <div>
+          <h3 class="font-semibold mb-2">Download App</h3>
+          <div class="flex space-x-2">
+            <a href="#" class="hover:underline">Google Play</a>
+            <a href="#" class="hover:underline">App Store</a>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="container mx-auto px-4 mt-4 text-center border-t border-gray-700 pt-4">
-      <div class="flex justify-center space-x-4 mb-2">
-        <a href="#" class="hover:text-blue-300"><i class="fab fa-facebook-f"></i></a>
-        <a href="#" class="hover:text-blue-300"><i class="fab fa-twitter"></i></a>
-        <a href="#" class="hover:text-blue-300"><i class="fab fa-instagram"></i></a>
-        <a href="#" class="hover:text-blue-300"><i class="fab fa-linkedin-in"></i></a>
+      <div class="mt-4 text-center">
+        <div class="flex justify-center space-x-4">
+          <a href="#"><i class="fab fa-facebook-f"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+          <a href="#"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+        <p class="mt-2">&copy; 2025 SmashStrix. All rights reserved.</p>
       </div>
-      <p>&copy; 2025 SmashStrix. All rights reserved.</p>
     </div>
   </footer>
 
-  <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" crossorigin="anonymous"></script>
+  <script>
+    // Toggle password visibility
+    function togglePassword(fieldId) {
+      const passwordField = document.getElementById(fieldId);
+      const toggleIcon = document.getElementById(`toggle${fieldId.charAt(0).toUpperCase() + fieldId.slice(1)}`);
+      if (passwordField && toggleIcon) {
+        console.log(`Toggling ${fieldId}, current type: ${passwordField.type}, icon classes: ${toggleIcon.className}`);
+        if (passwordField.type === "password") {
+          passwordField.type = "text";
+          toggleIcon.classList.remove('fa-eye');
+          toggleIcon.classList.add('fa-eye-slash');
+          console.log(`Changed to text, icon should be fa-eye-slash, new classes: ${toggleIcon.className}`);
+        } else {
+          passwordField.type = "password";
+          toggleIcon.classList.remove('fa-eye-slash');
+          toggleIcon.classList.add('fa-eye');
+          console.log(`Changed to password, icon should be fa-eye, new classes: ${toggleIcon.className}`);
+        }
+      } else {
+        console.log(`Error: Could not find field ${fieldId} or toggleIcon, field: ${passwordField}, icon: ${toggleIcon}`);
+      }
+    };
+
+  </script>
 </body>
 </html>
