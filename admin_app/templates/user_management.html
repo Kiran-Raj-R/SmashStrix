@@ -32,24 +32,24 @@
       }
     }
     @media (min-width: 1024px) {
-        .layout {
-          display: flex;
-          min-height: 100vh;
-          gap: 1rem; /* <-- Adds small gap between sidebar and content */
-        }
-        .sidebar {
-          position: static; /* <-- remove fixed for desktop */
-          width: 64px; 
-          flex-shrink: 0;
-        }
-        .sidebar:not(.collapsed) {
-          width: 256px;
-        }
-        .main-content {
-          flex-grow: 1;
-          margin-left: 0; /* <-- remove margin pushing */
-        }
+      .layout {
+        display: flex;
+        min-height: 100vh; /* Ensure full height */
+        gap: 1rem; /* Adds small gap between sidebar and content */
       }
+      .sidebar {
+        position: static; /* remove fixed for desktop */
+        width: 64px; 
+        flex-shrink: 0;
+      }
+      .sidebar:not(.collapsed) {
+        width: 256px;
+      }
+      .main-content {
+        flex-grow: 1;
+        margin-left: 0; /* remove margin pushing */
+      }
+    }
   </style>
 </head>
 <body class="bg-gray-50 font-sans">
@@ -79,6 +79,7 @@
 
     <!-- Main Content -->
     <div class="main-content expanded p-4" id="mainContent">
+      <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
       <!-- Header -->
       <div class="flex flex-col md:flex-row justify-between items-center mb-6">
         <button id="toggleSidebar" class="md:hidden text-gray-600 mb-4">
@@ -89,6 +90,7 @@
 
       <div class="mb-4 flex space-x-4">
         <input type="text" id="searchUser" class="border rounded p-2 w-1/3" placeholder="Search by username or email...">
+        <button id="searchButton" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Search</button>
         <button id="clearSearch" class="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400">Clear</button>
       </div>
       <table class="w-full bg-white shadow-md rounded-lg overflow-hidden">
@@ -101,7 +103,7 @@
           </tr>
         </thead>
         <tbody>
-          {% for user in users %}
+          {% for user in page_obj %}
             <tr class="border-b">
               <td class="p-3">{{ user.username }}</td>
               <td class="p-3">{{ user.email }}</td>
@@ -137,43 +139,96 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" crossorigin="anonymous"></script>
   <script>
-    // Sidebar Toggle
-    const toggleSidebar = document.getElementById('toggleSidebar');
-    const sidebar = document.querySelector('.sidebar');
-    const mainContent = document.querySelector('.main-content');
-    const sidebarOverlay = document.getElementById('sidebar-overlay');
+  // Sidebar Toggle
+  const toggleSidebar = document.getElementById('toggleSidebar');
+  const sidebar = document.querySelector('.sidebar');
+  const mainContent = document.querySelector('.main-content');
+  const sidebarOverlay = document.getElementById('sidebar-overlay');
 
-    toggleSidebar.addEventListener('click', () => {
-      sidebar.classList.toggle('collapsed');
-      mainContent.classList.toggle('expanded');
-      sidebarOverlay.classList.toggle('hidden');
-    });
+  toggleSidebar.addEventListener('click', () => {
+    sidebar.classList.toggle('collapsed');
+    mainContent.classList.toggle('expanded');
+    sidebarOverlay.classList.toggle('hidden');
+  });
 
-    sidebarOverlay.addEventListener('click', () => {
-      sidebar.classList.add('collapsed');
-      mainContent.classList.add('expanded');
-      sidebarOverlay.classList.add('hidden');
-    });
+  sidebarOverlay.addEventListener('click', () => {
+    sidebar.classList.add('collapsed');
+    mainContent.classList.add('expanded');
+    sidebarOverlay.classList.add('hidden');
+  });
 
-    // User Management Scripts
-    document.querySelectorAll('.block-user').forEach(button => {
-      button.addEventListener('click', () => {
-        if (confirm(`Are you sure you want to ${button.dataset.action} user ${button.dataset.userId}?`)) {
-          fetch(`/admin/toggle-user-status/${button.dataset.userId}/`, { method: 'POST', headers: { 'X-CSRFToken': '{{ csrf_token }}' } })
-            .then(response => response.json())
-            .then(data => location.reload());
+  // User Management Scripts
+  function updateUserStatus(button, isActive) {
+    button.textContent = isActive ? 'Block' : 'Unblock';
+    button.dataset.action = isActive ? 'block' : 'unblock';
+    const row = button.closest('tr');
+    if (row) {
+      const statusCell = row.querySelector('td:nth-child(3)');
+      if (statusCell) {
+        statusCell.textContent = isActive ? 'Active' : 'Blocked';
+        console.log(`Updated user ${button.dataset.userId} to ${isActive ? 'Active' : 'Blocked'}`);
+      } 
+      else {
+        console.error('Status cell not found');
+      }
+    } else {
+      console.error('Row not found');
+    }
+  }
+  
+
+  document.querySelectorAll('.block-user').forEach(button => {
+    button.addEventListener('click', () => {
+      const userId = button.dataset.userId;
+      const currentAction = button.dataset.action;
+      console.log(`Attempting to ${currentAction} user ${userId}`);
+      if (confirm(`Are you sure you want to ${currentAction} user ${userId}?`)) {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (!csrfToken) {
+          console.error('CSRF token not found');
+          alert('CSRF token missing. Please refresh the page.');
+          return;
         }
-      });
+        fetch(`/admin/toggle-user-status/${userId}/`, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': csrfToken.value
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Response data:', data);
+          if (data.status === 'success') {
+            updateUserStatus(button, data.is_active);
+          } else {
+            alert(`Failed to update user status: ${data.message || 'Unknown error'}`);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('An error occurred while updating user status. Check console for details.');
+        });
+      }
     });
+  });
 
-    document.getElementById('clearSearch').addEventListener('click', () => {
-      document.getElementById('searchUser').value = '';
-      window.location.href = window.location.pathname;
-    });
+  // Search Functionality
+  document.getElementById('searchButton').addEventListener('click', () => {
+    const searchTerm = document.getElementById('searchUser').value.trim();
+    if (searchTerm) {
+      window.location.href = `${window.location.pathname}?search=${encodeURIComponent(searchTerm)}`;
+    } else {
+      alert('Please enter a search term');
+    }
+  });
 
-    document.getElementById('searchUser').addEventListener('input', (e) => {
-      window.location.href = `${window.location.pathname}?search=${e.target.value}`;
-    });
-  </script>
-</body>
-</html>
+  document.getElementById('clearSearch').addEventListener('click', () => {
+    document.getElementById('searchUser').value = '';
+    window.location.href = window.location.pathname;
+  });
+</script>

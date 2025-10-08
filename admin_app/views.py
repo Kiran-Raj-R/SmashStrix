@@ -6,9 +6,13 @@ from user_app.models import Category, Product, ProductImage
 from django.http import JsonResponse
 from PIL import Image
 import os
+import logging
+from django.db.models import Q
 from django.contrib import messages
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
+
+logger = logging.getLogger(__name__)
 
 def admin_login(request):
     if request.method == 'POST':
@@ -33,7 +37,7 @@ def logout_view(request):
 
 @staff_member_required
 def index(request):
-    user_count = User.objects.count()
+    user_count = User.objects.filter(is_superuser = False).count()
     category_count = Category.objects.count()
     product_count = Product.objects.filter(is_active=True).count()
     return render(request, 'admin_dashboard.html', {
@@ -45,21 +49,30 @@ def index(request):
 @staff_member_required
 def user_list(request):
     search_query = request.GET.get('search', '')
-    users = User.objects.all()
+    users = User.objects.filter(is_superuser = False)
     if search_query:
-        users = users.filter(fullname__icontains=search_query) | users.filter(email__icontains=search_query)
+        users = users.filter(Q(username__icontains=search_query)) | users.filter(Q(email__icontains=search_query))
     users = users.order_by('-date_joined')
-    paginator = Paginator(users, 10)
+    paginator = Paginator(users, 8)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    return render(request, 'user_management.html', {'users': page_obj})
+    return render(request, 'user_management.html', {'page_obj': page_obj})
 
 @staff_member_required
 def toggle_user_status(request, user_id):
-    user = get_object_or_404(User, pk=user_id)
-    user.is_blocked = not user.is_blocked
-    user.save()
-    return JsonResponse({'status': 'success', 'is_blocked': user.is_blocked})
+    if request.method == 'POST':
+        user = get_object_or_404(User, pk=user_id)
+        old_status = user.is_active
+        user.is_active = not user.is_active
+        user.save()
+        new_status = user.is_active
+        logger.info(f'User {user_id} status changed from {old_status} to {new_status}')
+        user.refresh_from_db()
+        if old_status == new_status:
+            logger.error(f"Save failed for user {user_id}: No change detected")
+        return JsonResponse({'status': 'success', 'is_active': user.is_active})
+    return JsonResponse({'status':'error','message':'Invalid request method'},status=400)
+
 
 @staff_member_required
 def category_list(request):
@@ -68,7 +81,7 @@ def category_list(request):
     if search_query:
         categories = categories.filter(name__icontains=search_query)
     categories = categories.order_by('-id')
-    paginator = Paginator(categories, 10)
+    paginator = Paginator(categories, 8)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     return render(request, 'category_management.html', {'categories': page_obj})
