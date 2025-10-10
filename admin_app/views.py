@@ -33,6 +33,7 @@ def admin_login(request):
 @staff_member_required
 def logout_view(request):
     logout(request)
+    request.session.flush()
     return redirect('admin:login')
 
 @staff_member_required
