@@ -2,6 +2,7 @@ from django.urls import path, include
 from . import views
 from social_django.urls import urlpatterns as social_urlpatterns
 
+
 urlpatterns = [
     path('', views.home, name='home'),
     path('login/', views.user_login, name='login'),

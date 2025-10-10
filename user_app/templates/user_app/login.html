@@ -5,6 +5,7 @@
   <title>SmashStrix - Login</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     .password-toggle {
       cursor: pointer;
@@ -48,7 +49,6 @@
       height: 18px;
       margin-right: 8px;
     }
-
   </style>
 </head>
 <body class="bg-gray-50 font-sans">
@@ -78,9 +78,6 @@
         </a>
       </div>
       <hr class="my-4 border-gray-300">
-      {% if error %}
-        <p class="text-red-500 text-center mb-4">{{ error }}</p>
-      {% endif %}
       {% if show_forgot %}
         <form method="post" action="{% url 'forgot_password' %}">
           {% csrf_token %}
@@ -120,12 +117,22 @@
             <i class="fas fa-eye password-toggle" id="toggleLoginPassword" onclick="togglePassword('login_password')"></i>
           </div>
           <button type="submit" class="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Login</button>
-          <p class="mt-2 text-center text-sm">Forgot Password? <a href="{% url 'forgot_password' %}" class="text-blue-600 hover:underline"><i class="fa-solid fa-key"></i> </a></p>
+          <p class="mt-2 text-center text-sm">Forgot Password? <a href="{% url 'forgot_password' %}" class="text-blue-600 hover:underline"><i class="fa-solid fa-key"></i></a></p>
         </form>
         <p class="mt-4 text-center">Don't have an account? <a href="{% url 'signup' %}" class="text-blue-600 hover:underline"><i class="fa-solid fa-user-plus"></i></a></p>
       {% endif %}
     </div>
   </div>
+
+  <!-- Store messages and error as JSON data -->
+  <div id="django-messages" style="display: none;" data-messages='[
+    {% for message in messages %}
+      {"text": "{{ message|escapejs }}", "tags": "{{ message.tags|escapejs }}"},
+    {% endfor %}
+    {% if error %}
+      {"text": "{{ error|escapejs }}", "tags": "error"}
+    {% endif %}
+  ]'></div>
 
   <footer class="bg-gray-800 text-white py-6">
     <div class="container mx-auto px-4">
@@ -201,8 +208,26 @@
       } else {
         console.log(`Error: Could not find field ${fieldId} or toggleIcon, field: ${passwordField}, icon: ${toggleIcon}`);
       }
-    };
+    }
 
+    // Handle Django messages and error with SweetAlert
+    document.addEventListener('DOMContentLoaded', () => {
+      const messagesDiv = document.getElementById('django-messages');
+      if (messagesDiv) {
+        const messages = JSON.parse(messagesDiv.getAttribute('data-messages'));
+        console.log('Messages:', messages); // Debug
+        if (messages.length > 0) {
+          // Show only the first message to avoid multiple popups
+          const message = messages[0];
+          Swal.fire({
+            icon: message.tags,
+            title: message.tags === 'error' ? 'Login Error' : 'Account Status',
+            text: message.text,
+            confirmButtonText: 'OK'
+          });
+        }
+      }
+    });
   </script>
 </body>
 </html>

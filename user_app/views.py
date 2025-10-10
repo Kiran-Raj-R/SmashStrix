@@ -39,6 +39,8 @@ def user_login(request):
                 request.session['login_success'] = True
                 request.session.modified = True
                 return redirect('home')
+            elif not user.is_active:
+                return render(request, 'user_app/login.html', {'error': 'Your account is blocked. Please contact the administrator'})
             else:
                 logger.warning(f"Login denied for {email}: Inactive or admin user")
                 return render(request, 'user_app/login.html', {'error': 'Account inactive or admin access denied'})

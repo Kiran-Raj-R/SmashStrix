@@ -4,59 +4,15 @@
   <meta charset="UTF-8">
   <title>SmashStrix - User Page</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <style>
-    .password-toggle {
-      cursor: pointer;
-      color: #6b7280;
-      font-size: 1.2rem;
-      position: absolute;
-      right: 8px;
-      top: 55%;
-      transform: translateY(-50%);
-    }
-
-    .password-toggle:hover {
-      color: #4b5563;
-    }
-
-    .password-wrapper {
-      position: relative;
-    }
-
-    .google-container {
-      text-align: center;
-      margin-top: 15px;
-    }
-
-    .google-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: #fff;
-      border: 1px solid #dadce0;
-      border-radius: 4px;
-      padding: 8px 16px;
-      font-family: Arial, sans-serif;
-      font-size: 14px;
-      color: #3c4043;
-      text-decoration: none;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-    }
-
-    .google-btn img {
-      height: 18px;
-      margin-right: 8px;
-    }
-  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" crossorigin="anonymous"></script>
 </head>
-<body class="bg-gray-50 font-sans">
+
+<body class="flex flex-col min-h-screen bg-gray-50 font-sans">
+  <!-- Header -->
   <header class="bg-blue-800 text-white shadow-md">
     <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-      <a href="{% url 'home' %}" class="text-2xl font-bold flex items-center hover:text-blue-200">
-        <span>Smashstrix</span>
-      </a>
-      <div class="flex space-x-4 items-center">
+      <a href="{% url 'home' %}" class="text-2xl font-bold hover:text-blue-200">SmashStrix</a>
+      <div class="flex items-center space-x-4 text-lg">
         <a href="#" class="hover:text-blue-200"><i class="fa-solid fa-shopping-cart"></i></a>
         <a href="#" class="hover:text-blue-200"><i class="fa-solid fa-heart"></i></a>
         {% if user.is_authenticated %}
@@ -68,25 +24,30 @@
     </div>
   </header>
 
-  <div class="container mx-auto p-4 flex justify-center">
-    <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-md mt-10">
+  <!-- Main Content -->
+  <main class="flex-grow flex justify-center items-center px-4">
+    <div class="bg-white shadow-md rounded-lg p-6 w-full max-w-md text-center">
       {% if user.is_authenticated %}
-        <h2 class="text-2xl font-semibold mb-4 text-center">Welcome, {{ user.username }}!</h2>
+        <h2 class="text-2xl font-semibold mb-4">Welcome, {{ user.username }}!</h2>
         <form method="post" action="{% url 'logout' %}">
           {% csrf_token %}
-          <button type="submit" class="w-full bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Logout</button>
+          <button type="submit" class="w-full bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition">
+            Logout
+          </button>
         </form>
       {% else %}
-        <p class="text-center">Please <a href="{% url 'login' %}" class="text-blue-600 hover:underline">log in</a> to view this page.</p>
+        <p>Please <a href="{% url 'login' %}" class="text-blue-600 hover:underline">log in</a> to view this page.</p>
       {% endif %}
     </div>
-  </div>
+  </main>
 
-  <footer class="bg-gray-800 text-white py-6">
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white py-8 mt-auto">
     <div class="container mx-auto px-4">
-      <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-6 text-sm">
+        <!-- Quick Links -->
         <div>
-          <h3 class="font-semibold mb-2">Quick Links</h3>
+          <h3 class="font-semibold mb-2 text-lg">Quick Links</h3>
           <ul class="space-y-1">
             <li><a href="#" class="hover:underline">Contact Us</a></li>
             <li><a href="#" class="hover:underline">FAQ's & Return Policy</a></li>
@@ -94,46 +55,56 @@
             <li><a href="#" class="hover:underline">Privacy Policy</a></li>
           </ul>
         </div>
+
+        <!-- Explore -->
         <div>
-          <h3 class="font-semibold mb-2">Explore</h3>
+          <h3 class="font-semibold mb-2 text-lg">Explore</h3>
           <ul class="space-y-1">
             <li><a href="#" class="hover:underline">About Us</a></li>
-            <li><a href="#" class="hover:underline">Happy customers</a></li>
+            <li><a href="#" class="hover:underline">Happy Customers</a></li>
             <li><a href="#" class="hover:underline">Knowledge Center</a></li>
             <li><a href="#" class="hover:underline">In the News</a></li>
           </ul>
         </div>
+
+        <!-- Services -->
         <div>
-          <h3 class="font-semibold mb-2">Services</h3>
+          <h3 class="font-semibold mb-2 text-lg">Services</h3>
           <ul class="space-y-1">
             <li><a href="#" class="hover:underline">Sports Consultation</a></li>
             <li><a href="#" class="hover:underline">Recommendations</a></li>
           </ul>
         </div>
+
+        <!-- Shop by Brands -->
         <div>
-          <h3 class="font-semibold mb-2">Shop by Brands</h3>
-          <p>YONEX | LI-NING | ASHAWAY | VICTOR | CARLSON | APACS</p>
+          <h3 class="font-semibold mb-2 text-lg">Shop by Brands</h3>
+          <p class="text-gray-300 leading-relaxed">
+            YONEX | LI-NING | ASHAWAY | VICTOR | CARLTON | APACS
+          </p>
         </div>
+
+        <!-- Download App -->
         <div>
-          <h3 class="font-semibold mb-2">Download App</h3>
-          <div class="flex space-x-2">
+          <h3 class="font-semibold mb-2 text-lg">Download App</h3>
+          <div class="flex flex-col space-y-2">
             <a href="#" class="hover:underline">Google Play</a>
             <a href="#" class="hover:underline">App Store</a>
           </div>
         </div>
       </div>
-      <div class="mt-4 text-center">
-        <div class="flex justify-center space-x-4">
-          <a href="#"><i class="fab fa-facebook-f"></i></a>
-          <a href="#"><i class="fab fa-twitter"></i></a>
-          <a href="#"><i class="fab fa-instagram"></i></a>
-          <a href="#"><i class="fab fa-linkedin-in"></i></a>
+
+      <!-- Social & Copyright -->
+      <div class="mt-6 border-t border-gray-700 pt-4 text-center">
+        <div class="flex justify-center space-x-4 text-lg mb-3">
+          <a href="#" class="hover:text-gray-300"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="hover:text-gray-300"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="hover:text-gray-300"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="hover:text-gray-300"><i class="fab fa-linkedin-in"></i></a>
         </div>
-        <p class="mt-2">&copy; 2025 SmashStrix. All rights reserved.</p>
+        <p class="text-sm text-gray-300">&copy; 2025 SmashStrix. All rights reserved.</p>
       </div>
     </div>
   </footer>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" crossorigin="anonymous"></script>
 </body>
 </html>

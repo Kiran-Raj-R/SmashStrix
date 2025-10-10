@@ -207,10 +207,22 @@
           confirmButtonText: 'OK'
         }).then((result) => {
           if (result.isConfirmed) {
-            window.location.href = "{% url 'login' %}"; // Direct redirect after confirmation
+            window.location.href = "{% url 'login' %}"; 
           }
         });
       }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const errorMessage = "{{ error }}";
+        if (errorMessage) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Account Blocked',
+            text: errorMessage,
+            confirmButtonText: 'OK'
+          });
+        }
+      });
 
       // OTP Timer
       let expiryTime = new Date("{{ request.session.otp_expiry|default:current_time|date:'c' }}").getTime();
@@ -218,7 +230,7 @@
       let timerElement = document.getElementById('timer');
 
       function updateTimer() {
-        if (timerElement) { // Add null check
+        if (timerElement) {
           let now = new Date().getTime();
           let distance = expiryTime - now;
           if (distance < 0) {
@@ -234,7 +246,7 @@
       }
 
       let timerInterval = setInterval(updateTimer, 1000);
-      updateTimer(); // Initial call
+      updateTimer();
 
       // Resend OTP functionality
       if (resendLink) {
