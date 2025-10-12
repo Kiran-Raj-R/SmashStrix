@@ -1,6 +1,6 @@
 {% extends 'admin_base.html' %}
 
-{% block title %}Edit Category - SmashStrix{% endblock %}
+{% block title %}Add Brand - SmashStrix{% endblock %}
 
 {% block extra_css %}
   <style>
@@ -15,28 +15,28 @@
 
 {% block content %}
   <div class="container mx-auto py-10">
-    <h2 class="text-2xl font-semibold mb-4">Edit Category</h2>
-    <form method="post" class="bg-white rounded-lg p-6 shadow-md max-w-lg">
+    <h2 class="text-2xl font-semibold mb-4">Add New Brand</h2>
+    <form method="post" enctype="multipart/form-data" class="bg-white rounded-lg p-6 shadow-md max-w-lg">
       {% csrf_token %}
       <div class="mb-4">
         <label class="block text-sm font-medium">Name</label>
-        <input type="text" name="name" value="{{ category.name }}" class="w-full border rounded p-2 mt-1" required>
+        <input type="text" name="name" class="w-full border rounded p-2 mt-1" required>
       </div>
       <div class="mb-4">
-        <label class="block text-sm font-medium">Description</label>
-        <textarea name="description" class="w-full border rounded p-2 mt-1" rows="4">{{ category.description|default_if_none:"" }}</textarea>
+        <label class="block text-sm font-medium">Icon</label>
+        <input type="file" name="icon" class="w-full border rounded p-2 mt-1" accept="image/*" required>
       </div>
       <div class="mb-4">
         <label class="block text-sm font-medium">Active (List in Shop)</label>
-        <input type="checkbox" name="is_active" {% if category.is_active %}checked{% endif %} class="mt-1">
+        <input type="checkbox" name="is_active" checked class="mt-1">
       </div>
       <div class="mb-4">
         <label class="block text-sm font-medium">Deleted</label>
-        <input type="checkbox" name="is_deleted" {% if category.is_deleted %}checked{% endif %} class="mt-1">
+        <input type="checkbox" name="is_deleted" class="mt-1">
       </div>
-      <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Save Changes</button>
+      <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Add Brand</button>
     </form>
-    <a href="{% url 'admin:category_list' %}" class="block text-center mt-4 text-blue-600 hover:underline">Back to Category Management</a>
+    <a href="{% url 'admin:brand_management' %}" class="block text-center mt-4 text-blue-600 hover:underline">Back to Brand Management</a>
   </div>
 
   <div id="django-messages" style="display: none;" data-messages='[

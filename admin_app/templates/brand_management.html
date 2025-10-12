@@ -1,6 +1,6 @@
 {% extends 'admin_base.html' %}
 
-{% block title %}Category Management - SmashStrix{% endblock %}
+{% block title %}Brand Management - SmashStrix{% endblock %}
 
 {% block extra_css %}
   <style>
@@ -9,6 +9,11 @@
       .main-content {
         padding: 0 1rem; /* Ensure padding on mobile */
       }
+    }
+    .brand-icon {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
     }
   </style>
 {% endblock %}
@@ -22,45 +27,51 @@
     <button id="toggleSidebar" class="md:hidden text-gray-600 mb-4">
       <i class="fa-solid fa-bars text-2xl"></i>
     </button>
-    <h1 class="text-3xl font-bold text-gray-800 mb-4 md:mb-0">Category Management</h1>
+    <h1 class="text-3xl font-bold text-gray-800 mb-4 md:mb-0">Brand Management</h1>
   </div>
 
   <div class="mb-6 flex justify-between items-center">
     <div class="flex space-x-4">
-      <input type="text" id="searchCategory" class="border rounded-lg p-2 w-64" placeholder="Search by category name...">
+      <input type="text" id="searchBrand" class="border rounded-lg p-2 w-64" placeholder="Search by brand name...">
       <button id="clearSearch" class="bg-gray-300 text-black px-4 py-2 rounded-lg hover:bg-gray-400">Clear</button>
     </div>
-    <a href="{% url 'admin:category_add' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Add Category</a>
+    <a href="{% url 'admin:add_brand' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Add Brand</a>
   </div>
   <div class="bg-white shadow-lg rounded-lg overflow-hidden">
     <table class="w-full">
       <thead class="bg-blue-800 text-white">
         <tr>
           <th class="p-4 text-left">Name</th>
-          <th class="p-4 text-left">Description</th>
+          <th class="p-4 text-left">Icon</th>
           <th class="p-4 text-left">Actions</th>
         </tr>
       </thead>
       <tbody>
-        {% for category in page_obj %}
+        {% for brand in page_obj %}
           <tr class="border-b hover:bg-gray-100">
-            <td class="p-4">{{ category.name }}</td>
-            <td class="p-4">{{ category.description|truncatewords:10 }}</td>
+            <td class="p-4">{{ brand.name }}</td>
+            <td class="p-4">
+              {% if brand.icon %}
+                <img src="{{ brand.icon.url }}" alt="{{ brand.name }} icon" class="brand-icon">
+              {% else %}
+                No Icon
+              {% endif %}
+            </td>
             <td class="p-4 flex space-x-2">
-              <button class="toggle-category bg-gray-600 text-white px-2 py-1 rounded hover:bg-gray-700"
-                      data-category-id="{{ category.id }}"
-                      data-action="{% if category.is_active %}unlist{% else %}list{% endif %}"
-                      data-toggle-url="{% url 'admin:toggle_category_status' category.id %}">
-                {{ category.is_active|yesno:"Unlist,List" }}
+              <button class="toggle-brand bg-gray-600 text-white px-2 py-1 rounded hover:bg-gray-700"
+                      data-brand-id="{{ brand.id }}"
+                      data-action="{% if brand.is_active %}unlist{% else %}list{% endif %}"
+                      data-toggle-url="{% url 'admin:toggle_brand_status' brand.id %}">
+                {{ brand.is_active|yesno:"Unlist,List" }}
               </button>
-              <a href="{% url 'admin:category_edit' category.id %}" class="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">Edit</a>
-              <button class="delete-category bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700"
-                      data-category-id="{{ category.id }}"
-                      data-delete-url="{% url 'admin:delete_category' category.id %}">Delete</button>
+              <a href="{% url 'admin:edit_brand' brand.id %}" class="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">Edit</a>
+              <button class="delete-brand bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700"
+                      data-brand-id="{{ brand.id }}"
+                      data-delete-url="{% url 'admin:delete_brand' brand.id %}">Delete</button>
             </td>
           </tr>
         {% empty %}
-          <tr><td colspan="3" class="p-4 text-center">No categories found.</td></tr>
+          <tr><td colspan="3" class="p-4 text-center">No brands found.</td></tr>
         {% endfor %}
       </tbody>
     </table>
@@ -85,18 +96,18 @@
   <script>
     // Search and Clear Functionality
     document.getElementById('clearSearch').addEventListener('click', () => {
-      document.getElementById('searchCategory').value = '';
+      document.getElementById('searchBrand').value = '';
       window.location.href = window.location.pathname;
     });
 
-    document.getElementById('searchCategory').addEventListener('input', (e) => {
+    document.getElementById('searchBrand').addEventListener('input', (e) => {
       window.location.href = `${window.location.pathname}?search=${e.target.value}`;
     });
 
     // Toggle List/Unlist Functionality
-    document.querySelectorAll('.toggle-category').forEach(button => {
+    document.querySelectorAll('.toggle-brand').forEach(button => {
       button.addEventListener('click', () => {
-        const categoryId = button.dataset.categoryId;
+        const brandId = button.dataset.brandId;
         const action = button.dataset.action;
         const url = button.dataset.toggleUrl;
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
@@ -110,7 +121,7 @@
           return;
         }
         Swal.fire({
-          title: `Are you sure you want to ${action} this category?`,
+          title: `Are you sure you want to ${action} this brand?`,
           icon: 'warning',
           showCancelButton: true,
           confirmButtonText: 'Yes',
@@ -135,7 +146,7 @@
                 button.dataset.action = data.is_active ? 'unlist' : 'list';
                 Swal.fire({
                   icon: 'success',
-                  title: `Category ${data.is_active ? 'listed' : 'unlisted'} successfully`,
+                  title: `Brand ${data.is_active ? 'listed' : 'unlisted'} successfully`,
                   timer: 1500,
                   showConfirmButton: false
                 });
@@ -143,7 +154,7 @@
                 Swal.fire({
                   icon: 'error',
                   title: 'Error',
-                  text: data.message || 'Failed to update category status'
+                  text: data.message || 'Failed to update brand status'
                 });
               }
             })
@@ -152,7 +163,7 @@
               Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'An error occurred while updating the category status'
+                text: 'An error occurred while updating the brand status'
               });
             });
           }
@@ -160,10 +171,10 @@
       });
     });
 
-    // Delete Category Functionality
-    document.querySelectorAll('.delete-category').forEach(button => {
+    // Delete Brand Functionality
+    document.querySelectorAll('.delete-brand').forEach(button => {
       button.addEventListener('click', () => {
-        const categoryId = button.dataset.categoryId;
+        const brandId = button.dataset.brandId;
         const url = button.dataset.deleteUrl;
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
         console.log(`Sending delete request to: ${url}, CSRF: ${csrfToken}`); // Debug
@@ -176,7 +187,7 @@
           return;
         }
         Swal.fire({
-          title: 'Are you sure you want to delete this category?',
+          title: 'Are you sure you want to delete this brand?',
           icon: 'warning',
           showCancelButton: true,
           confirmButtonText: 'Yes, delete it',
@@ -199,7 +210,7 @@
               if (data.status === 'success') {
                 Swal.fire({
                   icon: 'success',
-                  title: 'Category deleted successfully',
+                  title: 'Brand deleted successfully',
                   timer: 1500,
                   showConfirmButton: false
                 }).then(() => {
@@ -209,7 +220,7 @@
                 Swal.fire({
                   icon: 'error',
                   title: 'Error',
-                  text: data.message || 'Failed to delete category'
+                  text: data.message || 'Failed to delete brand'
                 });
               }
             })
@@ -218,7 +229,7 @@
               Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'An error occurred while deleting the category'
+                text: 'An error occurred while deleting the brand'
               });
             });
           }

@@ -1,8 +1,9 @@
 from user_app.models import User
 from django.contrib.admin.views.decorators import staff_member_required
+from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
-from user_app.models import Category, Product, ProductImage
+from user_app.models import Category, Product, ProductImage, Brand
 from django.http import JsonResponse
 from PIL import Image
 import os
@@ -78,50 +79,142 @@ def toggle_user_status(request, user_id):
 @staff_member_required
 def category_list(request):
     search_query = request.GET.get('search', '')
-    categories = Category.objects.all()
-    if search_query:
-        categories = categories.filter(name__icontains=search_query)
-    categories = categories.order_by('-id')
-    paginator = Paginator(categories, 8)
+    categories = Category.objects.filter(name__icontains=search_query, is_deleted=False).order_by('name')
+    paginator = Paginator(categories, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    return render(request, 'category_management.html', {'categories': page_obj})
+    return render(request, 'category_management.html', {'page_obj': page_obj})
 
 @staff_member_required
 def category_add(request):
     if request.method == 'POST':
-        name = request.POST['name']
+        name = request.POST.get('name')
         description = request.POST.get('description', '')
-        category_img = request.FILES.get('category_img') if 'category_img' in request.FILES else None
-        category = Category.objects.create(name=name, description=description, category_img=category_img)
+        is_active = request.POST.get('is_active') == 'on'
+        is_deleted = request.POST.get('is_deleted') == 'on'
+
+        category = Category(
+            name=name,
+            description=description,
+            is_active=is_active,
+            is_deleted=is_deleted
+        )
+        category.save()
+        messages.success(request, f"Category '{name}' added successfully.")
         return redirect('admin:category_list')
+
     return render(request, 'add_category.html')
+
+
+@staff_member_required
+@csrf_exempt
+def toggle_category_status(request, category_id):
+    print(f"Toggle called for category_id: {category_id}")
+    if request.method == 'POST':
+        category = get_object_or_404(Category, pk=category_id, is_deleted=False)
+        category.is_active = not category.is_active
+        category.save()
+        print(f"Category {category.name} is_active set to: {category.is_active}")
+        return JsonResponse({'status': 'success', 'is_active': category.is_active})
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
 
 @staff_member_required
 def category_edit(request, category_id):
-    category = get_object_or_404(Category, pk=category_id)
+    category = get_object_or_404(Category, pk=category_id, is_deleted=False)
     if request.method == 'POST':
-        category.name = request.POST['name']
-        category.description = request.POST.get('description', '')
-        if 'category_img' in request.FILES:
-            category.category_img = request.FILES['category_img']
+        name = request.POST.get('name')
+        description = request.POST.get('description', '')
+        is_active = request.POST.get('is_active') == 'on'
+        is_deleted = request.POST.get('is_deleted') == 'on'
+
+        category.name = name
+        category.description = description
+        category.is_active = is_active
+        category.is_deleted = is_deleted
         category.save()
+        messages.success(request, f"Category '{name}' updated successfully.")
         return redirect('admin:category_list')
+
     return render(request, 'edit_category.html', {'category': category})
 
-# @staff_member_required
-# def delete_category(request, category_id):
-#     category = get_object_or_404(Category, pk=category_id)
-#     category.delete() 
-#     return JsonResponse({'status': 'success'})
+@staff_member_required
+@csrf_exempt
+def delete_category(request, category_id):
+    if request.method == 'POST':
+        category = get_object_or_404(Category, pk=category_id, is_deleted=False)
+        category.is_deleted = True
+        category.save()
+        return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
 
 @staff_member_required
-def delete_category(request, pk):
-    category = get_object_or_404(Category, id=pk)
+def brand_management(request):
+    search_query = request.GET.get('search', '')
+    brands = Brand.objects.filter(name__icontains=search_query, is_deleted=False).order_by('name')
+    paginator = Paginator(brands, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'brand_management.html', {'page_obj': page_obj})
+
+@staff_member_required
+def add_brand(request):
     if request.method == 'POST':
-        category.delete()
-        return JsonResponse({'message': 'Category deleted'})
-    return render(request, 'category_management.html')
+        name = request.POST.get('name')
+        icon = request.FILES.get('icon')
+        is_active = request.POST.get('is_active') == 'on'
+        is_deleted = request.POST.get('is_deleted') == 'on'
+
+        brand = Brand(
+            name=name,
+            icon=icon,
+            is_active=is_active,
+            is_deleted=is_deleted
+        )
+        brand.save()
+        messages.success(request, f"Brand '{name}' added successfully.")
+        return redirect('admin:brand_management')
+
+    return render(request, 'add_brand.html')
+
+@staff_member_required
+def edit_brand(request, brand_id):
+    brand = get_object_or_404(Brand, pk=brand_id, is_deleted=False)
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        icon = request.FILES.get('icon')
+        is_active = request.POST.get('is_active') == 'on'
+        is_deleted = request.POST.get('is_deleted') == 'on'
+
+        brand.name = name
+        if icon:
+            brand.icon = icon
+        brand.is_active = is_active
+        brand.is_deleted = is_deleted
+        brand.save()
+        messages.success(request, f"Brand '{name}' updated successfully.")
+        return redirect('admin:brand_management')
+
+    return render(request, 'edit_brand.html', {'brand': brand})
+
+@staff_member_required
+@csrf_exempt
+def toggle_brand_status(request, brand_id):
+    if request.method == 'POST':
+        brand = get_object_or_404(Brand, pk=brand_id, is_deleted=False)
+        brand.is_active = not brand.is_active
+        brand.save()
+        return JsonResponse({'status': 'success', 'is_active': brand.is_active})
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+
+@staff_member_required
+@csrf_exempt
+def delete_brand(request, brand_id):
+    if request.method == 'POST':
+        brand = get_object_or_404(Brand, pk=brand_id, is_deleted=False)
+        brand.is_deleted = True
+        brand.save()
+        return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
 
 @staff_member_required
 def product_list(request):

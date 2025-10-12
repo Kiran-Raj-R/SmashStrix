@@ -1,146 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Admin Dashboard - SmashStrix</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    /* Custom styles for sidebar and hover effects */
-    .sidebar {
-      transition: width 0.3s ease;
-    }
-    .sidebar.collapsed {
-      width: 0;
-      padding: 0;
-    }
-    .main-content {
-      transition: margin-left 0.3s ease;
-    }
-    .main-content.expanded {
-      margin-left: 0;
-    }
-    .card {
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-    @media (max-width: 640px) {
-      .grid-cols-1.md\:grid-cols-2.lg\:grid-cols-3 {
-        grid-template-columns: 1fr;
-      }
-      .text-3xl {
-        font-size: 1.5rem;
-      }
-      .text-2xl {
-        font-size: 1.25rem;
-      }
-      .sidebar {
-        transform: translateX(-100%);
-      }
-      .sidebar.collapsed {
-        transform: translateX(0);
-      }
-    }
-    @media (min-width: 641px) and (max-width: 1024px) {
-      .grid-cols-1.md\:grid-cols-2.lg\:grid-cols-3 {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-    @media (min-width: 1024px) {
-        .layout {
-          display: flex;
-          min-height: 100vh;
-          gap: 1rem; /* <-- Adds small gap between sidebar and content */
-        }
-        .sidebar {
-          position: static; /* <-- remove fixed for desktop */
-          width: 64px; 
-          flex-shrink: 0;
-        }
-        .sidebar:not(.collapsed) {
-          width: 256px;
-        }
-        .main-content {
-          flex-grow: 1;
-          margin-left: 0; /* <-- remove margin pushing */
-        }
-      }
-  </style>
-</head>
-<body class="bg-gray-50 font-sans">
-  <!-- Layout Container -->
-  <div class="layout min-h-screen">
-    <!-- Sidebar -->
-      <nav class="sidebar bg-white shadow-lg z-50 md:flex md:flex-col" id="sidebar">
-      <div class="p-4 flex-shrink-0">
-        <h2 class="text-xl font-bold text-gray-800">Smashkart</h2>
-      </div>
-      <ul class="space-y-2 p-4 flex-grow overflow-y-auto">
-        <li><a href="{% url 'admin:index' %}" class="flex items-center p-2 rounded hover:bg-gray-100 text-gray-700"><i class="fa-solid fa-tachometer-alt mr-3"></i> Dashboard</a></li>
-        <li><a href="{% url 'admin:product_list' %}" class="flex items-center p-2 rounded hover:bg-gray-100 text-gray-700"><i class="fa-solid fa-box mr-3"></i> Products</a></li>
-        <li><a href="#" class="flex items-center p-2 rounded hover:bg-gray-100 text-gray-700"><i class="fa-solid fa-list mr-3"></i> Order List</a></li>
-        <li><a href="{% url 'admin:user_list' %}" class="flex items-center p-2 rounded hover:bg-gray-100 text-gray-700"><i class="fa-solid fa-users mr-3"></i> Customers</a></li>
-        <li><a href="#" class="flex items-center p-2 rounded hover:bg-gray-100 text-gray-700"><i class="fa-solid fa-chart-line mr-3"></i> Sales</a></li>
-        <li><a href="{% url 'admin:category_list' %}" class="flex items-center p-2 rounded hover:bg-gray-100 text-gray-700"><i class="fa-solid fa-tags mr-3"></i> Categories</a></li>
-        <li><a href="#" class="flex items-center p-2 rounded hover:bg-gray-100 text-gray-700"><i class="fa-solid fa-ticket mr-3"></i> Coupons</a></li>
-        <li><a href="#" class="flex items-center p-2 rounded hover:bg-gray-100 text-gray-700"><i class="fa-solid fa-image mr-3"></i> Banners</a></li>
-        <li><a href="#" class="flex items-center p-2 rounded hover:bg-gray-100 text-gray-700"><i class="fa-solid fa-user-gear mr-3"></i> Account</a></li>
-        <li><a href="{% url 'admin:logout' %}" class="flex items-center p-2 rounded hover:bg-red-100 text-red-600"><i class="fa-solid fa-sign-out-alt mr-3"></i> Logout</a></li>
-      </ul>
-    </nav>
+{% extends 'admin_base.html' %}
 
-    <!-- Overlay for Sidebar (Mobile) -->
-    <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
+{% block title %}Admin Dashboard - SmashStrix{% endblock %}
 
-    <!-- Main Content -->
-    <div class="main-content expanded p-4" id="mainContent">
-      <!-- Header -->
-      <div class="flex flex-col md:flex-row justify-between items-center mb-6">
-        <button id="toggleSidebar" class="md:hidden text-gray-600 mb-4">
-          <i class="fa-solid fa-bars text-2xl"></i>
-        </button>
-        <h1 class="text-3xl font-bold text-gray-800 mb-4 md:mb-0">Dashboard</h1>
-      </div>
-
-      <!-- Stats Cards (Top Portion) -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-        <a href="{% url 'admin:user_list' %}" class="card bg-white p-4 rounded-lg shadow-md border border-gray-200 block">
-          <h2 class="text-xl font-semibold text-gray-700">Total Users</h2>
-          <p class="text-2xl mt-2 text-blue-600 font-bold">{{ user_count }}</p>
-        </a>
-        <a href="{% url 'admin:category_list' %}" class="card bg-white p-4 rounded-lg shadow-md border border-gray-200 block">
-          <h2 class="text-xl font-semibold text-gray-700">Active Categories</h2>
-          <p class="text-2xl mt-2 text-green-600 font-bold">{{ category_count }}</p>
-        </a>
-        <a href="{% url 'admin:product_list' %}" class="card bg-white p-4 rounded-lg shadow-md border border-gray-200 block">
-          <h2 class="text-xl font-semibold text-gray-700">Active Products</h2>
-          <p class="text-2xl mt-2 text-purple-600 font-bold">{{ product_count }}</p>
-        </a>
-      </div>
-    </div>
+{% block content %}
+  <!-- Header -->
+  <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+    <button id="toggleSidebar" class="md:hidden text-gray-600 mb-4">
+      <i class="fa-solid fa-bars text-2xl"></i>
+    </button>
+    <h1 class="text-3xl font-bold text-gray-800 mb-4 md:mb-0">Dashboard</h1>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" crossorigin="anonymous"></script>
-  <script>
-    // Sidebar Toggle
-    const toggleSidebar = document.getElementById('toggleSidebar');
-    const sidebar = document.querySelector('.sidebar');
-    const mainContent = document.querySelector('.main-content');
-    const sidebarOverlay = document.getElementById('sidebar-overlay');
-
-    toggleSidebar.addEventListener('click', () => {
-      sidebar.classList.toggle('collapsed');
-      mainContent.classList.toggle('expanded');
-      sidebarOverlay.classList.toggle('hidden');
-    });
-
-    sidebarOverlay.addEventListener('click', () => {
-      sidebar.classList.add('collapsed');
-      mainContent.classList.add('expanded');
-      sidebarOverlay.classList.add('hidden');
-    });
-  </script>
-</body>
-</html>
+  <!-- Stats Cards (Top Portion) -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+    <a href="{% url 'admin:user_list' %}" class="card bg-white p-4 rounded-lg shadow-md border border-gray-200 block">
+      <h2 class="text-xl font-semibold text-gray-700">Total Users</h2>
+      <p class="text-2xl mt-2 text-blue-600 font-bold">{{ user_count }}</p>
+    </a>
+    <a href="{% url 'admin:category_list' %}" class="card bg-white p-4 rounded-lg shadow-md border border-gray-200 block">
+      <h2 class="text-xl font-semibold text-gray-700">Active Categories</h2>
+      <p class="text-2xl mt-2 text-green-600 font-bold">{{ category_count }}</p>
+    </a>
+    <a href="{% url 'admin:product_list' %}" class="card bg-white p-4 rounded-lg shadow-md border border-gray-200 block">
+      <h2 class="text-xl font-semibold text-gray-700">Active Products</h2>
+      <p class="text-2xl mt-2 text-purple-600 font-bold">{{ product_count }}</p>
+    </a>
+  </div>
+{% endblock %}

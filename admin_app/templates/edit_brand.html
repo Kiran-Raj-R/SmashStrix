@@ -1,0 +1,98 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Edit Brand - SmashStrix{% endblock %}
+
+{% block extra_css %}
+  <style>
+    /* Page-specific styles */
+    @media (max-width: 640px) {
+      .main-content {
+        padding: 0 1rem; /* Ensure padding on mobile */
+      }
+    }
+    .brand-icon {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="container mx-auto py-10">
+    <h2 class="text-2xl font-semibold mb-4">Edit Brand</h2>
+    <form method="post" enctype="multipart/form-data" class="bg-white rounded-lg p-6 shadow-md max-w-lg">
+      {% csrf_token %}
+      <div class="mb-4">
+        <label class="block text-sm font-medium">Name</label>
+        <input type="text" name="name" value="{{ brand.name }}" class="w-full border rounded p-2 mt-1" required>
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium">Current Icon</label>
+        {% if brand.icon %}
+          <img src="{{ brand.icon.url }}" alt="{{ brand.name }} icon" class="brand-icon mb-2">
+        {% else %}
+          <p>No Icon</p>
+        {% endif %}
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium">Upload New Icon (Optional)</label>
+        <input type="file" name="icon" class="w-full border rounded p-2 mt-1" accept="image/*">
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium">Active (List in Shop)</label>
+        <input type="checkbox" name="is_active" {% if brand.is_active %}checked{% endif %} class="mt-1">
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium">Deleted</label>
+        <input type="checkbox" name="is_deleted" {% if brand.is_deleted %}checked{% endif %} class="mt-1">
+      </div>
+      <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Save Changes</button>
+    </form>
+    <a href="{% url 'admin:brand_management' %}" class="block text-center mt-4 text-blue-600 hover:underline">Back to Brand Management</a>
+  </div>
+
+  <div id="django-messages" style="display: none;" data-messages='[
+    {% for message in messages %}
+      {"text": "{{ message|escapejs }}", "tags": "{{ message.tags|escapejs }}"},
+    {% endfor %}
+  ]'></div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    // Handle form submission feedback
+    document.addEventListener('DOMContentLoaded', () => {
+      const messagesDiv = document.getElementById('django-messages');
+      if (messagesDiv) {
+        const messages = JSON.parse(messagesDiv.getAttribute('data-messages'));
+        if (messages.length > 0) {
+          const message = messages[0];
+          Swal.fire({
+            icon: mapDjangoMessageTags(message.tags),
+            title: mapDjangoMessageTags(message.tags) === 'error' ? 'Error' : 'Success',
+            text: message.text,
+            confirmButtonText: 'OK'
+          });
+        }
+      }
+
+      // Map Django message tags to SweetAlert2 icons
+      function mapDjangoMessageTags(tags) {
+        switch (tags) {
+          case 'success':
+            return 'success';
+          case 'error':
+            return 'error';
+          case 'warning':
+            return 'warning';
+          case 'info':
+            return 'info';
+          default:
+            return 'info';
+        }
+      }
+    });
+  </script>
+{% endblock %}
