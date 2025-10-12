@@ -19,4 +19,5 @@ urlpatterns = [
     path('', include((social_urlpatterns))), 
     path('product/<int:product_id>/', views.product_detail, name='product_detail'),
     path('add-to-cart/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
+    path('shop/',views.shop,name='shop'),
 ]

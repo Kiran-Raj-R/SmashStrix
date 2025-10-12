@@ -6,7 +6,7 @@ from django.contrib.auth.models import AbstractUser
 class User(AbstractUser):
     fullname = models.CharField(max_length=255, null=False)
     mobile_num = models.CharField(max_length=15, null=False)
-    email = models.EmailField(unique=True) #change made on 27-09-2025
+    email = models.EmailField(unique=True)
     referral_code = models.CharField(max_length=50, null=True)
     is_admin = models.BooleanField(default=False)
     is_blocked = models.BooleanField(default=False)
@@ -20,9 +20,21 @@ class User(AbstractUser):
         return self.fullname
 
 class Category(models.Model):
-    name = models.CharField(max_length=255, unique=True, null=False)
-    description = models.TextField(null=True)
-    category_img = models.ImageField(upload_to='categories/', null=True, blank=True)
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+class Brand(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    icon = models.ImageField(upload_to='brand_icons/')
+    is_active = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name

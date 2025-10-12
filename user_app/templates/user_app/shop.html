@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmashStrix - Shop</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #4CAF50;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      z-index: 1000;
+      display: none;
+      animation: fadeInOut 3s ease-in-out;
+    }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translateY(20px); }
+      10% { opacity: 1; transform: translateY(0); }
+      90% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(20px); }
+    }
+
+    .product-card {
+      border: 2px solid #e5e7eb;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+      background-color: #ffffff;
+    }
+
+    .product-image {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .product-card:hover .product-image {
+      transform: scale(1.05);
+    }
+
+    .sidebar {
+      border-right: 1px solid #e5e7eb;
+      padding-right: 1rem;
+    }
+
+    .filter-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .filter-section h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        border-right: none;
+        border-bottom: 1px solid #e5e7eb;
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+      }
+      .product-card .w-full.h-64 {
+        height: 200px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .product-card .w-full.h-64 {
+        height: 150px;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 font-sans">
+  <!-- Top Banner -->
+  <div class="banner text-center py-2 bg-blue-100 text-blue-800">
+    <p>Get 10% off for your first purchase use <strong>SMX10</strong></p>
+  </div>
+
+  <!-- Header -->
+  <header class="bg-blue-800 text-white shadow-md">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <a href="{% url 'home' %}" class="text-2xl font-bold flex items-center hover:text-blue-200">
+        <span>Smashstrix</span>
+      </a>
+      <div class="flex items-center space-x-4">
+        <div class="relative">
+          <input type="text" id="search" placeholder="Search products..." class="p-2 border rounded w-64">
+          <button id="clear-search" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700" style="display: none;">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <a href="#" class="hover:text-blue-200"><i class="fa-solid fa-shopping-cart"></i></a>
+        <a href="#" class="hover:text-blue-200"><i class="fa-solid fa-heart"></i></a>
+        {% if user.is_authenticated %}
+          <a href="{% url 'user_page' %}" class="hover:text-blue-200"><i class="fa-solid fa-user"></i></a>
+        {% else %}
+          <a href="{% url 'login' %}" class="hover:text-blue-200"><i class="fa-solid fa-user"></i></a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <section class="container mx-auto py-10 flex flex-col md:flex-row">
+    <!-- Sidebar -->
+    <aside class="sidebar w-full md:w-1/4 pr-4">
+      <div class="filter-section">
+        <h3>Categories</h3>
+        <select id="category-filter" class="w-full p-2 border rounded">
+          <option value="">All Categories</option>
+        </select>
+      </div>
+      <div class="filter-section">
+        <h3>Brands</h3>
+        <select id="brand-filter" class="w-full p-2 border rounded">
+          <option value="">All Brands</option>
+          <option value="Yonex">Yonex</option>
+          <option value="Li-Ning">Li-Ning</option>
+          <option value="Ashaway">Ashaway</option>
+          <option value="Victor">Victor</option>
+          <option value="Carlson">Carlson</option>
+          <option value="Apacs">Apacs</option>
+        </select>
+      </div>
+      <div class="filter-section">
+        <h3>Color</h3>
+        <select id="color-filter" class="w-full p-2 border rounded">
+          <option value="">All Colors</option>
+          <option value="Black">Black</option>
+          <option value="White">White</option>
+          <option value="Red">Red</option>
+          <option value="Blue">Blue</option>
+          <option value="Green">Green</option>
+        </select>
+      </div>
+      <div class="filter-section">
+        <h3>Price Range</h3>
+        <input type="number" id="min-price" placeholder="Min Price" class="w-full p-2 border rounded mb-2">
+        <input type="number" id="max-price" placeholder="Max Price" class="w-full p-2 border rounded">
+      </div>
+      <button id="apply-filters" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Apply Filters</button>
+    </aside>
+
+    <!-- Product Grid -->
+    <div class="w-full md:w-3/4 pl-0 md:pl-4">
+      <h2 class="text-2xl font-semibold mb-4">Shop All Products</h2>
+      <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8"></div>
+      <div id="product-pagination" class="mt-4 flex justify-center"></div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white py-6">
+    <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-5 gap-8">
+      <div>
+        <h3 class="text-lg font-semibold mb-2">Quick Links</h3>
+        <ul class="mt-2 space-y-1">
+          <li><a href="#" class="hover:text-blue-200">Contact Us</a></li>
+          <li><a href="#" class="hover:text-blue-200">FAQ's & Return Policy</a></li>
+          <li><a href="#" class="hover:text-blue-200">Track your order</a></li>
+          <li><a href="#" class="hover:text-blue-200">Privacy Policy</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold mb-2">Explore</h3>
+        <ul class="mt-2 space-y-1">
+          <li><a href="/about-us/" class="hover:text-blue-200">About Us</a></li>
+          <li><a href="#" class="hover:text-blue-200">Happy customers</a></li>
+          <li><a href="#" class="hover:text-blue-200">Knowledge Center</a></li>
+          <li><a href="#" class="hover:text-blue-200">In the News</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold mb-2">Services</h3>
+        <ul class="mt-2 space-y-1">
+          <li><a href="#" class="hover:text-blue-200">Sports Consultation</a></li>
+          <li><a href="#" class="hover:text-blue-200">Recommendations</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold mb-2">Shop by Brands</h3>
+        <p class="mt-2">YONEX | LI-NING | ASHAWAY | VICTOR | CARLSON | APACS</p>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold mb-2">Download App</h3>
+        <div class="flex space-x-2 mt-2">
+          <a href="#" class="hover:text-blue-200">Google Play</a>
+          <a href="#" class="hover:text-blue-200">App Store</a>
+        </div>
+      </div>
+    </div>
+    <div class="container mx-auto px-4 mt-4 text-center border-t border-gray-700 pt-4">
+      <div class="flex justify-center space-x-4 mb-2">
+        <a href="#" class="hover:text-blue-200"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" class="hover:text-blue-200"><i class="fab fa-twitter"></i></a>
+        <a href="#" class="hover:text-blue-200"><i class="fab fa-instagram"></i></a>
+        <a href="#" class="hover:text-blue-200"><i class="fab fa-linkedin-in"></i></a>
+      </div>
+      <p>&copy; 2025 SmashStrix. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Toast and Messages -->
+  <div id="loginToast" class="toast">Logged in successfully !</div>
+  <div id="django-messages" style="display: none;" data-messages='[
+    {% for message in messages %}
+      {"text": "{{ message|escapejs }}", "tags": "{{ message.tags|escapejs }}"},
+    {% endfor %}
+  ]'></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" crossorigin="anonymous"></script>
+  <script>
+    // Handle Django messages with SweetAlert
+    document.addEventListener('DOMContentLoaded', () => {
+      const messagesDiv = document.getElementById('django-messages');
+      if (messagesDiv) {
+        const messages = JSON.parse(messagesDiv.getAttribute('data-messages'));
+        console.log('Messages:', messages);
+        if (messages.length > 0) {
+          const message = messages[0];
+          Swal.fire({
+            icon: message.tags,
+            title: message.tags === 'error' ? 'Error' : 'Account Status',
+            text: message.text,
+            confirmButtonText: 'OK'
+          });
+        }
+      }
+    });
+
+    // Handle login success toast
+    window.addEventListener('load', () => {
+      const loginSuccess = "{{ request.session.login_success|default:'false' }}";
+      if (loginSuccess === "True") {
+        const toast = document.getElementById('loginToast');
+        toast.style.display = 'block';
+        setTimeout(() => {
+          toast.style.display = 'none';
+          fetch('/clear-login-success/', {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+              'Content-Type': 'application/json',
+            },
+          }).then(() => {
+            console.log('Login success flag cleared');
+          }).catch(error => {
+            console.error('Failed to clear login success flag:', error);
+          });
+        }, 3000);
+      }
+    });
+
+    // Fetch products with filters
+    async function fetchProducts(page = 1) {
+      const search = document.getElementById('search').value;
+      const category = document.getElementById('category-filter').value;
+      const brand = document.getElementById('brand-filter').value;
+      const color = document.getElementById('color-filter').value;
+      const minPrice = document.getElementById('min-price').value;
+      const maxPrice = document.getElementById('max-price').value;
+
+      const params = new URLSearchParams({
+        search: search || '',
+        category: category || '',
+        brand: brand || '',
+        color: color || '',
+        min_price: minPrice || '',
+        max_price: maxPrice || '',
+        page: page,
+        page_size: 12, // More products per page for shop
+      }).toString();
+
+      try {
+        const response = await fetch(`http://127.0.0.1:8000/api/products/?${params}`);
+        const data = await response.json();
+        const productGrid = document.getElementById('product-grid');
+        productGrid.innerHTML = data.results.map(product => `
+          <div class="product-card bg-white p-4 rounded shadow-md text-center">
+            <img src="${product.image || 'https://via.placeholder.com/150'}" alt="${product.name}" class="w-full h-64 object-cover product-image">
+            <h3 class="text-lg font-semibold mt-2">${product.name}</h3>
+            <p class="text-gray-600">₹${product.price}</p>
+          </div>
+        `).join('');
+
+        const pagination = document.getElementById('product-pagination');
+        pagination.innerHTML = `
+          <button ${data.current_page <= 1 ? 'disabled' : ''} onclick="fetchProducts(${data.current_page - 1})" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Previous</button>
+          <span class="px-4 py-2">Page ${data.current_page} of ${data.total_pages}</span>
+          <button ${data.current_page >= data.total_pages ? 'disabled' : ''} onclick="fetchProducts(${data.current_page + 1})" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Next</button>
+        `;
+        document.getElementById('clear-search').style.display = search ? 'block' : 'none';
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to load products. Please try again.',
+          confirmButtonText: 'OK'
+        });
+      }
+    }
+
+    // Fetch categories
+    async function fetchCategories() {
+      try {
+        const response = await fetch('http://127.0.0.1:8000/api/categories/');
+        const data = await response.json();
+        const categorySelect = document.getElementById('category-filter');
+        data.forEach(category => {
+          const option = document.createElement('option');
+          option.value = category.id;
+          option.textContent = category.name;
+          categorySelect.appendChild(option);
+        });
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    }
+
+    // Event listeners
+    document.getElementById('search').addEventListener('input', () => fetchProducts());
+    document.getElementById('clear-search').addEventListener('click', () => {
+      document.getElementById('search').value = '';
+      fetchProducts();
+    });
+    document.getElementById('apply-filters').addEventListener('click', () => fetchProducts());
+    document.getElementById('category-filter').addEventListener('change', () => fetchProducts());
+    document.getElementById('brand-filter').addEventListener('change', () => fetchProducts());
+    document.getElementById('color-filter').addEventListener('change', () => fetchProducts());
+    document.getElementById('min-price').addEventListener('input', () => fetchProducts());
+    document.getElementById('max-price').addEventListener('input', () => fetchProducts());
+
+    // Initial load
+    window.onload = () => {
+      fetchCategories();
+      fetchProducts();
+    };
+  </script>
+</body>
+</html>
